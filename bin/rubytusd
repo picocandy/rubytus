@@ -3,7 +3,6 @@
 require 'bundler'
 Bundler.require(:default, :development)
 
-require 'rubytus/base_app'
 require 'rack/handler/puma'
 require 'pry'
 
@@ -12,8 +11,13 @@ Rubytus::Server.configure do |config|
   config.base_path = '/uploads/'
 end
 
+base_app = lambda do |env|
+  [200, {}, []]
+end
+
 app = Rack::Builder.new do
-  run Rubytus::Server.new(Rubytus::BaseApp)
+  use Rubytus::Server
+  run base_app
 end
 
 Rack::Handler::Puma.run(app, {

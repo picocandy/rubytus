@@ -2,10 +2,8 @@ ENV['RACK_ENV'] ||= 'test'
 
 require 'minitest/autorun'
 require 'turn/autorun'
-
 require 'rack'
 require 'rack/test'
-
 require 'rubytus'
 
 Turn.config do |c|
@@ -15,9 +13,12 @@ end
 
 module Rubytus
   module Mock
-    def mock_app(&block)
-      app = Class.new Rubytus::Server, &block
-      app.new
+    def app
+      Rack::Builder.new {
+        use Rubytus::Server
+        run lambda {|env| [200, {}, []]}
+      }.to_app
     end
   end
 end
+
