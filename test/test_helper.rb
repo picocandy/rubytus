@@ -1,5 +1,5 @@
-require "minitest/autorun"
-require "turn/autorun"
+require 'minitest/autorun'
+require 'turn/autorun'
 
 Turn.config do |c|
   c.format  = :pretty

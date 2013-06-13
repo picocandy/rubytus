@@ -1,4 +1,4 @@
-require "rubytus/version"
+require 'rubytus/version'
 
 module Rubytus
 end
