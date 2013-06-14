@@ -10,5 +10,25 @@ module Rubytus
       header['Access-Control-Expose-Headers'] = 'Location, Range, Content-Disposition, Offset'
       super
     end
+
+    def method_not_allowed!
+      self.status = 405
+    end
+
+    def not_found!
+      self.status = 404
+    end
+
+    def bad_request!
+      self.status = 400
+    end
+
+    def server_error!
+      self.status = 500
+    end
+
+    def created!
+      self.status = 201
+    end
   end
 end

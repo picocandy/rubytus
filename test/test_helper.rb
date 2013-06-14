@@ -16,9 +16,19 @@ end
 module Rubytus
   module Mock
     def app
+      Rubytus::Server.configure do |config|
+        config.data_dir  = "/tmp/rubytusd-#{rand(1000)}"
+        config.base_path = '/uploads/'
+      end
+
+      base_app = lambda do |env|
+        [200, {}, []]
+      end
+
       Rack::Builder.new {
+        use Rack::CommonLogger
         use Rubytus::Server
-        run lambda {|env| [200, {}, []]}
+        run base_app
       }.to_app
     end
   end

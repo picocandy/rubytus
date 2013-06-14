@@ -19,6 +19,7 @@ module Rubytus
           if request.post?
             create_resource(request.final_length)
           else
+            @response.method_not_allowed!
             @response['Allow'] = 'POST'
             @response.write "#{request.request_method} used against file creation url. Only POST is allowed."
           end
@@ -31,20 +32,22 @@ module Rubytus
 
           unless request.head? or request.patch? or request.get?
             allowed = 'HEAD,PATCH'
+            @response.method_not_allowed!
             @response['Allow'] = allowed
             @response.write "#{request.request_method} used against file creation url. Allowed: #{allowed}"
           end
         end
 
         if request.unknown?
-          @response.status = 404
+          @response.not_found!
           @response.write("unknown url: #{request.path} - does not match file pattern")
         end
 
       rescue PermissionError => e
-        @response.status = 500
+        @response.server_error!
+
       rescue HeaderError => e
-        @response.status = 400
+        @response.bad_request!
         @response.write(e.message)
       end
 
@@ -55,22 +58,20 @@ module Rubytus
       uid = Rubytus::Uid::uid
 
       @store.create_file(uid, final_length)
-      @response.status      = 201 # created
+      @response.created!
       @response['Location'] = resource_url(uid)
     end
 
     def head_resource
-      @response.status    = 200
       @response['Offset'] = 0
     end
 
     def patch_resource
-      @response.status    = 200
       @response['Offset'] = 0
     end
 
-    def get_resource
-      @response.write resource_path
+    def get_resource(resource)
+      @response.write(resource)
     end
 
     def self.configure(&block)
