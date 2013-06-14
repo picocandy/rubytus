@@ -2,9 +2,16 @@ require 'rubytus/configuration'
 
 module Rubytus
   class Server
+    RESOURCE_NAME_REGEX = /^([a-z0-9]{32})$/
+
+    attr_reader :configuration
+
     def initialize(app)
-      @app     = app
-      @handler = Rubytus::Handler.new(self.class.configuration)
+      @app           = app
+      @configuration = self.class.configuration
+
+      # OPTIMIZE: move to proper place
+      @configuration.validates!
     end
 
     def call(env)
@@ -62,21 +69,21 @@ module Rubytus
     end
 
     private
+    def invalid_path?
+      !collection_path? || !resource_path?
+    end
+
     def collection_path?
       @request.path == @@configuration.base_path.chomp('/')
     end
 
     def resource_path?
-      resource_path =~ /^([a-z0-9]{32})$/
-    end
-
-    def invalid_path?
-      !collection_path? || !resource_path?
+      resource_path =~ RESOURCE_NAME_REGEX
     end
 
     def resource_path
       path = @request.path
-      path.slice!(@@configuration.base_path)
+      path.slice!(configuration.base_path)
       path
     end
   end

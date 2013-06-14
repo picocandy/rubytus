@@ -1,6 +1,6 @@
 require 'rubytus/version'
 require 'rubytus/error'
-require 'rubytus/handler'
+require 'rubytus/uid'
 require 'rubytus/response'
 require 'rubytus/server'
 

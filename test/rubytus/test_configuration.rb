@@ -41,4 +41,20 @@ class TestConfiguration < MiniTest::Unit::TestCase
     configuration.validate_max_size
     assert_equal 102400, configuration.max_size
   end
+
+  def test_validate_base_path_error
+    configuration = Rubytus::Configuration.new(:base_path => 'abc+def=gh')
+    assert_raises(Rubytus::ConfigurationError) { configuration.validate_base_path }
+  end
+
+  def test_validate_base_path
+    configuration = Rubytus::Configuration.new(:base_path => '/user-uploads/')
+    assert_equal '/user-uploads/', configuration.base_path
+  end
+
+  def test_validates!
+    random_name   = "/tmp/rubytus-#{rand(10000)}"
+    configuration = Rubytus::Configuration.new(:data_dir => random_name)
+    assert_equal nil, configuration.validates!
+  end
 end
