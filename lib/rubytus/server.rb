@@ -13,31 +13,36 @@ module Rubytus
       @response = Rubytus::Response.new(body, status, header)
 
       if collection_path?
-        @response['Allow'] = 'POST'
-
         if @request.post?
           # create resource
+        else
+          @response['Allow'] = 'POST'
         end
       end
 
       if resource_path?
-        if @request.patch?
-          # continue previously uploaded file
-        end
-
         if @request.head?
           # fetch file metadata
+          # response: 200, Offset
+        end
+
+        if @request.patch?
+          # continue previously uploaded file
+          # request: Content-Length, Offset, (trim upload based on offset), Content-Type: application/offset+octet-stream
+          # response: 200
         end
 
         if @request.get?
           @response.write resource_path
         end
 
-        @response['Allow'] = 'HEAD,PATCH'
+        unless @request.head? or @request.patch? or @request.get?
+          @response['Allow'] = 'HEAD,PATCH'
+        end
       end
 
       # TODO: optimize!
-      unless collection_path? or resource_path?
+      if invalid_path?
         @response.status = 404
         @response.write('not found')
       end
@@ -63,6 +68,10 @@ module Rubytus
 
     def resource_path?
       resource_path =~ /^([a-z0-9]{32})$/
+    end
+
+    def invalid_path?
+      !collection_path? || !resource_path?
     end
 
     def resource_path

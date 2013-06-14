@@ -1,9 +1,11 @@
 ENV['RACK_ENV'] ||= 'test'
 
+require 'simplecov'
 require 'minitest/autorun'
 require 'turn/autorun'
 require 'rack'
 require 'rack/test'
+require 'pry'
 require 'rubytus'
 
 Turn.config do |c|
