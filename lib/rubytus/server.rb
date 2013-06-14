@@ -17,38 +17,32 @@ module Rubytus
       begin
         if request.collection?
           if request.post?
-            create_resource
+            create_resource(request.final_length)
           else
             @response['Allow'] = 'POST'
-            @response.write "#{@request.request_method} used against file creation url. Only POST is allowed."
+            @response.write "#{request.request_method} used against file creation url. Only POST is allowed."
           end
         end
 
         if request.resource?
-          if request.head?
-            head_resource
-          end
-
-          if request.patch?
-            patch_resource
-            # request: Content-Length, Offset, (trim upload based on offset), Content-Type: application/offset+octet-stream
-          end
-
-          if request.get?
-            get_resource
-          end
+          head_resource  if request.head?
+          patch_resource if request.patch?
+          get_resource   if request.get?
 
           unless request.head? or request.patch? or request.get?
-            @response['Allow'] = 'HEAD,PATCH'
+            allowed = 'HEAD,PATCH'
+            @response['Allow'] = allowed
+            @response.write "#{request.request_method} used against file creation url. Allowed: #{allowed}"
           end
         end
 
-        # TODO: optimize!
-        if invalid_path?
+        if request.unknown?
           @response.status = 404
-          @response.write('not found')
+          @response.write("unknown url: #{request.path} - does not match file pattern")
         end
 
+      rescue PermissionError => e
+        @response.status = 500
       rescue HeaderError => e
         @response.status = 400
         @response.write(e.message)
@@ -57,22 +51,22 @@ module Rubytus
       @response.finish
     end
 
-    def create_resource
+    def create_resource(final_length)
       uid = Rubytus::Uid::uid
 
-      @store.create_file(uid, @request.final_length)
+      @store.create_file(uid, final_length)
       @response.status      = 201 # created
       @response['Location'] = resource_url(uid)
     end
 
     def head_resource
       @response.status    = 200
-      @response['Offset'] = 10
+      @response['Offset'] = 0
     end
 
     def patch_resource
       @response.status    = 200
-      @response['Offset'] = 10
+      @response['Offset'] = 0
     end
 
     def get_resource

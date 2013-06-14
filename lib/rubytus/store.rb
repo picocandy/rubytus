@@ -22,8 +22,8 @@ module Rubytus
         File.open(file_path(uid), 'w') do |f|
           f.write('')
         end
-      rescue Errno::EEXIST => e
-        raise PermissionError, e.message
+      rescue SystemCallError => e
+        raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
       end
     end
 
@@ -32,8 +32,8 @@ module Rubytus
         File.open(info_path(uid), 'w') do |f|
           f.write('')
         end
-      rescue Errno::EEXIST => e
-        raise PermissionError, e.message
+      rescue SystemCallError => e
+        raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
       end
     end
   end
