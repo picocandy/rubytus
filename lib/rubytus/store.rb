@@ -1,7 +1,5 @@
 module Rubytus
   class Store
-    attr_reader :configuration
-
     def initialize(configuration)
       @configuration = configuration
     end
@@ -12,11 +10,11 @@ module Rubytus
     end
 
     def file_path(uid)
-      File.join(configuration.data_dir, "#{uid}.bin")
+      File.join(@configuration.data_dir, "#{uid}.bin")
     end
 
     def info_path(uid)
-      File.join(configuration.data_dir, "#{uid}.info")
+      File.join(@configuration.data_dir, "#{uid}.info")
     end
 
     def write_file(uid)
