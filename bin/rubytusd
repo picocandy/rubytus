@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 
 require 'bundler'
-Bundler.require(:default)
+Bundler.require(:default, :development)
 
 require 'rack/handler/puma'
+require 'pry'
 
 Rubytus::Server.configure do |config|
   config.data_dir  = '/tmp/rubytusd'
@@ -15,6 +16,7 @@ base_app = lambda do |env|
 end
 
 app = Rack::Builder.new do
+  use Rack::CommonLogger
   use Rubytus::Server
   run base_app
 end

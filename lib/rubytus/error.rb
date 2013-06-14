@@ -4,4 +4,7 @@ module Rubytus
 
   # :nodoc:
   class PermissionError < StandardError; end
+
+  # :nodoc:
+  class HeaderError < StandardError; end
 end
