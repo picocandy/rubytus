@@ -24,6 +24,16 @@ class TestConfiguration < MiniTest::Unit::TestCase
     FileUtils.rm_rf configuration.data_dir # cleanup
   end
 
+  def test_validate_data_dir_world_writable
+    random_name   = "/tmp/rubytus-#{rand(10000)}"
+    configuration = Rubytus::Configuration.new(:data_dir => random_name)
+    configuration.validate_data_dir
+
+    assert_equal "777", sprintf("%o", File.world_writable?(configuration.data_dir))
+
+    FileUtils.rm_rf configuration.data_dir # cleanup
+  end
+
   def test_validate_data_dir_permission_error
     configuration = Rubytus::Configuration.new(:data_dir => '/opt/rubytus')
     assert_raises(Rubytus::PermissionError) { configuration.validate_data_dir }
