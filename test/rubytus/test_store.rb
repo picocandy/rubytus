@@ -28,7 +28,7 @@ class TestStore < MiniTest::Unit::TestCase
 
   def test_write_file
     @store.write_file(@uid)
-    assert_equal true, File.exist?(@store.file_path(@uid))
+    assert File.exist?(@store.file_path(@uid))
   end
 
   def test_write_file_failed
@@ -38,7 +38,7 @@ class TestStore < MiniTest::Unit::TestCase
 
   def test_write_info
     @store.write_info(@uid)
-    assert_equal true, File.exist?(@store.info_path(@uid))
+    assert File.exist?(@store.info_path(@uid))
   end
 
   def test_write_info_failed
@@ -48,7 +48,7 @@ class TestStore < MiniTest::Unit::TestCase
 
   def test_create_file
     @store.create_file(@uid, 100)
-    assert_equal true, File.exist?(@store.file_path(@uid))
-    assert_equal true, File.exist?(@store.info_path(@uid))
+    assert File.exist?(@store.file_path(@uid))
+    assert File.exist?(@store.info_path(@uid))
   end
 end

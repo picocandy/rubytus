@@ -15,17 +15,17 @@ class TestRequest < MiniTest::Unit::TestCase
 
   def test_unknown
     request = Rubytus::Request.new(@root_env, @configuration)
-    assert_equal true, request.unknown?
+    assert request.unknown?
   end
 
   def test_collection
     request = Rubytus::Request.new(@collection_env, @configuration)
-    assert_equal true, request.collection?
+    assert request.collection?
   end
 
   def test_resource
     request = Rubytus::Request.new(@resource_env, @configuration)
-    assert_equal true, request.resource?
+    assert request.resource?
   end
 
   def test_resource_name

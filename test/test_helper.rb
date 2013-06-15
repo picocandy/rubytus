@@ -33,4 +33,3 @@ module Rubytus
     end
   end
 end
-

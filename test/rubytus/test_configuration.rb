@@ -19,7 +19,7 @@ class TestConfiguration < MiniTest::Unit::TestCase
     configuration = Rubytus::Configuration.new(:data_dir => random_name)
     configuration.validate_data_dir
 
-    assert_equal true, File.directory?(configuration.data_dir)
+    assert File.directory?(configuration.data_dir)
 
     FileUtils.rm_rf configuration.data_dir # cleanup
   end
