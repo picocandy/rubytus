@@ -2,6 +2,7 @@ ENV['RACK_ENV'] ||= 'test'
 
 require 'simplecov'
 require 'minitest/autorun'
+require 'rr'
 require 'turn/autorun'
 require 'rack'
 require 'rack/test'

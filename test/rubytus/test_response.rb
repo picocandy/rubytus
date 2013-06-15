@@ -1,4 +1,5 @@
 require 'test_helper'
+require 'time'
 
 class TestResponse < MiniTest::Unit::TestCase
   def setup
@@ -20,32 +21,63 @@ class TestResponse < MiniTest::Unit::TestCase
   end
 
   def test_method_not_allowed!
-    response = Rubytus::Response.new
-    response.method_not_allowed!
-    assert_equal 405, response.status
+    @response.method_not_allowed!
+    assert_equal 405, @response.status
   end
 
   def test_not_found!
-    response = Rubytus::Response.new
-    response.not_found!
-    assert_equal 404, response.status
+    @response.not_found!
+    assert_equal 404, @response.status
   end
 
   def test_bad_request!
-    response = Rubytus::Response.new
-    response.bad_request!
-    assert_equal 400, response.status
+    @response.bad_request!
+    assert_equal 400, @response.status
   end
 
   def test_server_error!
-    response = Rubytus::Response.new
-    response.server_error!
-    assert_equal 500, response.status
+    @response.server_error!
+    assert_equal 500, @response.status
   end
 
   def test_created!
+    @response.created!
+    assert_equal 201, @response.status
+  end
+
+  def test_ok!
+    @response.ok!
+    assert_equal 200, @response.status
+  end
+
+  def test_date
+    the_time = Time.mktime(2013, 6, 15)
+    stub(Time).now { the_time }
+
     response = Rubytus::Response.new
-    response.created!
-    assert_equal 201, response.status
+    response.date
+
+    assert_equal the_time.httpdate, response.headers['Date']
+  end
+
+  def test_date_which_exist_on_header
+    the_time = Time.mktime(2013, 6, 15)
+    @response.headers['Date'] = the_time.httpdate.to_s
+    assert_equal the_time, @response.date
+  end
+
+  def test_offset
+    @response.offset(100)
+    assert_equal '100', @response.headers['Offset']
+  end
+
+  def test_final_length
+    @response.final_length(1000)
+    assert_equal '1000', @response.headers['Final-Length']
+  end
+
+  def test_without_content_type
+    @response.without_content_type
+    refute_includes @response.headers.keys, 'Content-Type'
   end
 end

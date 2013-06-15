@@ -1,12 +1,20 @@
+require 'json'
+
 module Rubytus
   class Store
     def initialize(configuration)
       @configuration = configuration
     end
 
-    def create_file(uid, final_length)
+    def create_file(uid, options = {})
+      data = {
+        'Offset'      => 0,
+        'FinalLength' => options[:final_length],
+        'Meta'        => nil
+      }
+
       write_file(uid)
-      write_info(uid)
+      write_info(uid, data)
     end
 
     def file_path(uid)
@@ -27,11 +35,19 @@ module Rubytus
       end
     end
 
-    def write_info(uid)
+    def write_info(uid, data)
       begin
         File.open(info_path(uid), 'w') do |f|
-          f.write('')
+          f.write(data.to_json)
         end
+      rescue SystemCallError => e
+        raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
+      end
+    end
+
+    def read_info(uid)
+      begin
+        JSON.parse(IO.read(info_path(uid)))
       rescue SystemCallError => e
         raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
       end

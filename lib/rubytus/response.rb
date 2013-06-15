@@ -1,8 +1,13 @@
+require 'time'
 require 'rack'
 
 module Rubytus
   class Response < Rack::Response
+    attr_reader :now
+
     def initialize(body = [], status = 200, header = {})
+      @now = Time.now
+
       header['Content-Type']                  = 'text/plain; charset=utf-8'
       header['Access-Control-Allow-Origin']   = '*'
       header['Access-Control-Allow-Methods']  = 'HEAD,GET,PUT,POST,PATCH,DELETE'
@@ -29,6 +34,31 @@ module Rubytus
 
     def created!
       self.status = 201
+    end
+
+    def ok!
+      self.status = 200
+    end
+
+    def date
+      if date = headers['Date']
+        Time.httpdate(date)
+      else
+        headers['Date'] = now.httpdate unless headers.frozen?
+        now
+      end
+    end
+
+    def offset(value)
+      header['Offset'] = "#{value}"
+    end
+
+    def final_length(value)
+      header['Final-Length'] = "#{value}"
+    end
+
+    def without_content_type
+      header.delete('Content-Type')
     end
   end
 end
