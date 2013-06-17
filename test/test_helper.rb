@@ -1,44 +1,18 @@
-ENV['RACK_ENV'] ||= 'test'
-
 require 'simplecov'
 require 'minitest/autorun'
+require 'minitest/pride'
 require 'rr'
-require 'turn/autorun'
-require 'rack'
-require 'rack/test'
+require 'goliath/test_helper'
+require 'rubytus/error'
+require 'rubytus/uid'
 require 'pry'
-require 'rubytus'
 
-Turn.config do |c|
-  c.format  = :outline
-  c.natural = true
-end
+Goliath.env = :test
 
 module Rubytus
   module Mock
-    def app
-      Rubytus::Server.configure do |config|
-        config.data_dir  = data_dir
-        config.base_path = '/uploads/'
-      end
-
-      base_app = lambda do |env|
-        [200, {}, []]
-      end
-
-      Rack::Builder.new {
-        use Rack::CommonLogger
-        use Rubytus::Server
-        run base_app
-      }.to_app
-    end
-
     def pdf
       File.expand_path('../files/protocol.pdf', __FILE__)
-    end
-
-    def uid
-      Rubytus::Uid::uid
     end
 
     def data_dir
@@ -47,6 +21,10 @@ module Rubytus
 
     def remove_data_dir
       FileUtils.rm_rf(Dir.glob("/tmp/rubytus-*"))
+    end
+
+    def uid
+      Rubytus::Uid.uid
     end
   end
 end

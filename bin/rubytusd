@@ -3,28 +3,10 @@
 require 'bundler'
 Bundler.require(:default)
 
-require 'rack/handler/puma'
+require 'goliath/runner'
 
-Rubytus::Server.configure do |config|
-  config.data_dir  = ENV['TUSD_DATA_DIR']  || '/tmp/rubytusd'
-  config.base_path = ENV['TUSD_BASE_PATH'] || '/uploads/'
-  config.max_size  = ENV['TUSD_MAX_SIZE']  || 1073741824
-end
-
-base_app = lambda do |env|
-  [200, {}, []]
-end
-
-app = Rack::Builder.new do
-  use Rack::CommonLogger
-  use Rubytus::Server
-  run base_app
-end
-
-Rack::Handler::Puma.run(app, {
-  :Host        => ENV['TUSD_HOST']    || '127.0.0.1',
-  :Port        => ENV['TUSD_PORT']    || 1080,
-  :Threads     => ENV['TUSD_THREADS'] || '0:16',
-  :environment => ENV['TUSD_ENV']     || 'production'
-})
+api = Rubytus::API.new
+runner = Goliath::Runner.new(ARGV, api)
+runner.app = Goliath::Rack::Builder.build(Rubytus::API, api)
+runner.run
 

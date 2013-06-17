@@ -1,13 +1,24 @@
-require 'rack'
-
 module Rubytus
-  class Request < Rack::Request
-    RESOURCE_NAME_REGEX = /^([a-z0-9]{32})$/
+  class Request
+    RESOURCE_UID_REGEX = /^([a-z0-9]{32})$/
+    RESUMABLE_CONTENT_TYPE = 'application/offset+octet-stream'
 
-    def initialize(env, configuration)
+    def initialize(env)
       @env = env
-      @configuration = configuration
-      super(@env)
+    end
+
+    def get?;     request_method == 'GET'; end
+    def post?;    request_method == 'POST'; end
+    def head?;    request_method == 'HEAD'; end
+    def patch?;   request_method == 'PATCH'; end
+    def options?; request_method == 'OPTIONS'; end
+
+    def request_method
+      @env['REQUEST_METHOD']
+    end
+
+    def resumable_content_type?
+      @env['CONTENT_TYPE'] == RESUMABLE_CONTENT_TYPE
     end
 
     def unknown?
@@ -15,21 +26,21 @@ module Rubytus
     end
 
     def collection?
-      path.chomp('/') == @configuration.base_path.chomp('/')
+      path_info.chomp('/') == @env.options[:base_path].chomp('/')
     end
 
     def resource?
-      !!(resource_name =~ RESOURCE_NAME_REGEX)
+      !!(resource_uid =~ RESOURCE_UID_REGEX)
     end
 
-    def resource_name
-      rpath = path
-      rpath.slice!(@configuration.base_path)
+    def resource_uid
+      rpath = path_info.dup
+      rpath.slice!(@env.options[:base_path])
       rpath
     end
 
     def resource_url(uid)
-      "#{scheme}://#{host_with_port}#{@configuration.base_path}#{uid}"
+      "http://#{host_with_port}#{@env.options[:base_path]}#{uid}"
     end
 
     def final_length
@@ -40,12 +51,25 @@ module Rubytus
       fetch_positive_header('HTTP_OFFSET')
     end
 
+    def path_info
+      @env['PATH_INFO']
+    end
+
+    def host_with_port
+      if forwarded = @env["HTTP_X_FORWARDED_HOST"]
+        forwarded.split(/,\s?/).last
+      else
+        @env['HTTP_HOST'] || "#{@env['SERVER_NAME'] || @env['SERVER_ADDR']}:#{@env['SERVER_PORT']}"
+      end
+    end
+
     protected
     def fetch_positive_header(header_name)
-      value       = @env.fetch(header_name, '0').to_i
+      header_val  = @env.fetch(header_name, '')
+      value       = header_val.to_i
       orig_header = http_orig_header(header_name)
 
-      if value.zero?
+      if header_val.empty?
         raise HeaderError, "#{orig_header} header must not be empty"
       end
 
@@ -61,3 +85,4 @@ module Rubytus
     end
   end
 end
+
