@@ -2,15 +2,21 @@ require 'test_helper'
 require 'rack/mock'
 
 class TestRequest < MiniTest::Unit::TestCase
+  include Rubytus::Mock
+
   def setup
     @configuration = Rubytus::Configuration.new(
-      :data_dir  => "/tmp/rubytusd-#{rand(1000)}",
+      :data_dir  => data_dir,
       :base_path => '/uploads/'
     )
 
     @root_env       = Rack::MockRequest.env_for('http://example.com:8080/')
     @collection_env = Rack::MockRequest.env_for('http://example.com:8080/uploads/')
     @resource_env   = Rack::MockRequest.env_for('http://example.com:8080/uploads/823c29ccdce3075e7d20c5b2811b88d9')
+  end
+
+  def teardown
+    remove_data_dir
   end
 
   def test_unknown

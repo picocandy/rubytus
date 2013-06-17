@@ -18,7 +18,7 @@ module Rubytus
   module Mock
     def app
       Rubytus::Server.configure do |config|
-        config.data_dir  = "/tmp/rubytusd-#{rand(1000)}"
+        config.data_dir  = data_dir
         config.base_path = '/uploads/'
       end
 
@@ -39,6 +39,14 @@ module Rubytus
 
     def uid
       Rubytus::Uid::uid
+    end
+
+    def data_dir
+      "/tmp/rubytus-#{rand(1000)}"
+    end
+
+    def remove_data_dir
+      FileUtils.rm_rf(Dir.glob("/tmp/rubytus-*"))
     end
   end
 end

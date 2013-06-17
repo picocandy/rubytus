@@ -2,12 +2,10 @@ require 'test_helper'
 require 'fileutils'
 
 class TestConfiguration < MiniTest::Unit::TestCase
-  def random_name
-    @random_name ||= "/tmp/rubytus-#{rand(1000)}"
-  end
+  include Rubytus::Mock
 
   def teardown
-    FileUtils.rm_rf(File.expand_path(random_name))
+    remove_data_dir
   end
 
   def test_initialize_with_options
@@ -23,14 +21,14 @@ class TestConfiguration < MiniTest::Unit::TestCase
   end
 
   def test_validate_data_dir
-    configuration = Rubytus::Configuration.new(:data_dir => random_name)
+    configuration = Rubytus::Configuration.new(:data_dir => data_dir)
     configuration.validate_data_dir
 
     assert File.directory?(configuration.data_dir)
   end
 
   def test_validate_data_dir_world_writable
-    configuration = Rubytus::Configuration.new(:data_dir => random_name)
+    configuration = Rubytus::Configuration.new(:data_dir => data_dir)
     configuration.validate_data_dir
 
     assert_equal "777", sprintf("%o", File.world_writable?(configuration.data_dir))
@@ -65,8 +63,7 @@ class TestConfiguration < MiniTest::Unit::TestCase
   end
 
   def test_validates
-    random_name   = "/tmp/rubytus-#{rand(10000)}"
-    configuration = Rubytus::Configuration.new(:data_dir => random_name)
+    configuration = Rubytus::Configuration.new(:data_dir => data_dir)
     assert_equal nil, configuration.validates
   end
 end

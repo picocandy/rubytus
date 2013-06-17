@@ -8,6 +8,10 @@ class TestServer < MiniTest::Unit::TestCase
     @server = app
   end
 
+  def teardown
+    remove_data_dir
+  end
+
   def collection_path
     '/uploads/'
   end

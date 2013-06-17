@@ -1,9 +1,11 @@
 require 'test_helper'
 
 class TestStore < MiniTest::Unit::TestCase
+  include Rubytus::Mock
+
   def setup
     @configuration = Rubytus::Configuration.new(
-      :data_dir  => "/tmp/rubytusd-#{rand(1000)}",
+      :data_dir  => data_dir,
       :base_path => '/uploads/'
     )
 
@@ -14,8 +16,12 @@ class TestStore < MiniTest::Unit::TestCase
 
     @configuration.validates
 
-    @uid   = Rubytus::Uid.uid
+    @uid   = uid
     @store = Rubytus::Store.new(@configuration)
+  end
+
+  def teardown
+    remove_data_dir
   end
 
   def test_file_path
