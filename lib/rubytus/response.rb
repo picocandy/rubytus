@@ -16,29 +16,12 @@ module Rubytus
       super
     end
 
-    def method_not_allowed!
-      self.status = 405
-    end
-
-    def not_found!
-      self.status = 404
-    end
-
-    def bad_request!
-      self.status = 400
-    end
-
-    def server_error!
-      self.status = 500
-    end
-
-    def created!
-      self.status = 201
-    end
-
-    def ok!
-      self.status = 200
-    end
+    def ok;                  self.status = 200; end
+    def created;             self.status = 201; end
+    def bad_request;         self.status = 400; end
+    def not_found;           self.status = 404; end
+    def method_not_allowed;  self.status = 405; end
+    def server_error;        self.status = 500; end
 
     def date
       if date = headers['Date']
@@ -47,18 +30,6 @@ module Rubytus
         headers['Date'] = now.httpdate unless headers.frozen?
         now
       end
-    end
-
-    def offset(value)
-      header['Offset'] = "#{value}"
-    end
-
-    def final_length(value)
-      header['Final-Length'] = "#{value}"
-    end
-
-    def without_content_type
-      header.delete('Content-Type')
     end
   end
 end

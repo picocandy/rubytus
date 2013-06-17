@@ -32,5 +32,13 @@ module Rubytus
         run base_app
       }.to_app
     end
+
+    def pdf
+      File.expand_path('../files/protocol.pdf', __FILE__)
+    end
+
+    def uid
+      Rubytus::Uid::uid
+    end
   end
 end

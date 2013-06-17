@@ -12,7 +12,7 @@ class TestStore < MiniTest::Unit::TestCase
       :base_path => '/uploads/'
     )
 
-    @configuration.validates!
+    @configuration.validates
 
     @uid   = Rubytus::Uid.uid
     @store = Rubytus::Store.new(@configuration)
@@ -27,13 +27,13 @@ class TestStore < MiniTest::Unit::TestCase
   end
 
   def test_write_file
-    @store.write_file(@uid)
+    @store.write_file(@uid, '', 0)
     assert File.exist?(@store.file_path(@uid))
   end
 
   def test_write_file_failed
     store = Rubytus::Store.new(@read_only_configuration)
-    assert_raises(Rubytus::PermissionError) { store.write_file(@uid) }
+    assert_raises(Rubytus::PermissionError) { store.write_file(@uid, '', 0) }
   end
 
   def test_write_info

@@ -12,7 +12,7 @@ module Rubytus
       @max_size  = options[:max_size]  || ENV['TUSD_MAX_SIZE']  || 1024 * 1024 * 1024
     end
 
-    def validates!
+    def validates
       validate_base_path
       validate_data_dir
       validate_max_size
