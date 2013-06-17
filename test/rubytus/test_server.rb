@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TestServer < MiniTest::Unit::TestCase
+class TestServer < MiniTest::Test
   include Rack::Test::Methods
   include Rubytus::Mock
 

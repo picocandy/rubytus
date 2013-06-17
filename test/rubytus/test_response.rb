@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'time'
 
-class TestResponse < MiniTest::Unit::TestCase
+class TestResponse < MiniTest::Test
   def setup
     @response = Rubytus::Response.new
   end

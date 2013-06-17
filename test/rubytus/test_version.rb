@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TestVersion < MiniTest::Unit::TestCase
+class TestVersion < MiniTest::Test
   def test_version
     refute_nil Rubytus::VERSION
   end

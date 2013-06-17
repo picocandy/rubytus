@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class TestStore < MiniTest::Unit::TestCase
+class TestStore < MiniTest::Test
   include Rubytus::Mock
 
   def setup

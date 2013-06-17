@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'fileutils'
 
-class TestConfiguration < MiniTest::Unit::TestCase
+class TestConfiguration < MiniTest::Test
   include Rubytus::Mock
 
   def teardown

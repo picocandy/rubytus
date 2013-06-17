@@ -1,7 +1,7 @@
 require 'test_helper'
 require 'rack/mock'
 
-class TestRequest < MiniTest::Unit::TestCase
+class TestRequest < MiniTest::Test
   include Rubytus::Mock
 
   def setup

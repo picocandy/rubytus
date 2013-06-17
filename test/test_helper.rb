@@ -2,17 +2,12 @@ ENV['RACK_ENV'] ||= 'test'
 
 require 'simplecov'
 require 'minitest/autorun'
+require 'minitest/pride'
 require 'rr'
-require 'turn/autorun'
 require 'rack'
 require 'rack/test'
 require 'pry'
 require 'rubytus'
-
-Turn.config do |c|
-  c.format  = :outline
-  c.natural = true
-end
 
 module Rubytus
   module Mock
