@@ -26,7 +26,7 @@ module Rubytus
     end
 
     def collection?
-      path_info.chomp('/') == @env.options[:base_path].chomp('/')
+      path_info.chomp('/') == @env['api.options'][:base_path].chomp('/')
     end
 
     def resource?
@@ -35,12 +35,12 @@ module Rubytus
 
     def resource_uid
       rpath = path_info.dup
-      rpath.slice!(@env.options[:base_path])
+      rpath.slice!(@env['api.options'][:base_path])
       rpath
     end
 
     def resource_url(uid)
-      "http://#{host_with_port}#{@env.options[:base_path]}#{uid}"
+      "http://#{host_with_port}#{@env['api.options'][:base_path]}#{uid}"
     end
 
     def final_length

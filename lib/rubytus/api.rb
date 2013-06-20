@@ -15,6 +15,7 @@ module Rubytus
     def on_headers(env, headers)
       request = Rubytus::Request.new(env)
 
+      env['api.options'] = @options
       env['api.headers'] = {
         'Content-Type'                  => 'text/plain; charset=utf-8',
         'Access-Control-Allow-Origin'   => '*',
