@@ -48,6 +48,11 @@ class TestStorage < MiniTest::Test
     assert_raises(Rubytus::PermissionError) { storage.create_file(@uid, :final_length => 512) }
   end
 
+  def test_patch_file_failed
+    storage = Rubytus::Storage.new(@read_only_options)
+    assert_raises(Rubytus::PermissionError) { storage.patch_file(@uid, 'abc') }
+  end
+
   def test_read_info
     File.open(@storage.info_path(@uid), 'w') do |f|
       f.write('{"Offset":100,"FinalLength":500,"Meta":null}')
@@ -77,6 +82,7 @@ class TestStorage < MiniTest::Test
 
   def test_update_info_failure
     storage = Rubytus::Storage.new(@read_only_options)
+    stub(storage).read_info(@uid) { { 'Offset' => 100 } }
     assert_raises(Rubytus::PermissionError) { storage.update_info(@uid, 'Offset' => 250) }
   end
 

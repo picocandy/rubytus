@@ -1,15 +1,6 @@
 require 'test_helper'
-require 'rubytus/setup'
 require 'fileutils'
 require 'stringio'
-
-module Rubytus
-  module Mock
-    class Config
-      include Rubytus::Setup
-    end
-  end
-end
 
 class TestConfiguration < MiniTest::Test
   include Rubytus::Mock
@@ -54,7 +45,7 @@ class TestConfiguration < MiniTest::Test
 
   def test_setup_exit_for_invalid_data_dir
     config = @config.dup
-    config.instance_variable_set('@opts', { :data_dir => '/opt/123=' })
+    config.instance_variable_set('@options', { :data_dir => '/opt/123=' })
     is_exit = false
 
     begin
@@ -68,7 +59,7 @@ class TestConfiguration < MiniTest::Test
 
   def test_setup_exit_for_invalid_max_size
     config = @config.dup
-    config.instance_variable_set('@opts', {
+    config.instance_variable_set('@options', {
       :data_dir => data_dir,
       :max_size => 'a'
     })
@@ -86,7 +77,7 @@ class TestConfiguration < MiniTest::Test
 
   def test_setup_exit_for_invalid_base_path
     config = @config.dup
-    config.instance_variable_set('@opts', {
+    config.instance_variable_set('@options', {
       :data_dir  => data_dir,
       :max_size  => 512,
       :base_path => '+foo+'
@@ -105,7 +96,7 @@ class TestConfiguration < MiniTest::Test
 
   def test_setup
     config = @config.dup
-    config.instance_variable_set('@opts', {
+    config.instance_variable_set('@options', {
       :data_dir  => data_dir,
       :max_size  => '512',
       :base_path => '/uploads/'
@@ -113,7 +104,7 @@ class TestConfiguration < MiniTest::Test
 
     config.setup
 
-    opts = config.instance_variable_get('@opts')
+    opts = config.instance_variable_get('@options')
 
     assert_kind_of Rubytus::Storage, config.instance_variable_get('@storage')
     assert_equal 512, opts[:max_size]
@@ -124,5 +115,19 @@ class TestConfiguration < MiniTest::Test
     options = config.init_options
 
     assert_kind_of Rubytus::Storage, config.init_storage(options)
+  end
+
+  def test_options_parser
+    config = @config.dup
+    dir    = data_dir
+
+    op = config.options_parser(OptionParser.new, default_options)
+    op.parse!(['-m', '512', '-f', dir, '-b', '/uploads/'])
+
+    options = config.instance_variable_get('@options')
+
+    assert_equal dir, options[:data_dir]
+    assert_equal '512', options[:max_size]
+    assert_equal '/uploads/', options[:base_path]
   end
 end

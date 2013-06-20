@@ -22,7 +22,8 @@ module Rubytus
         options[:max_size] = value
       end
 
-      @opts = options
+      @options = options
+      opts
     end
 
     def init_options
@@ -39,10 +40,10 @@ module Rubytus
 
     def setup
       begin
-        @opts[:data_dir]  = validate_data_dir(@opts[:data_dir])
-        @opts[:max_size]  = validate_max_size(@opts[:max_size])
-        @opts[:base_path] = validate_base_path(@opts[:base_path])
-        @storage = init_storage(@opts)
+        @options[:data_dir]  = validate_data_dir(@options[:data_dir])
+        @options[:max_size]  = validate_max_size(@options[:max_size])
+        @options[:base_path] = validate_base_path(@options[:base_path])
+        @storage = init_storage(@options)
       rescue PermissionError, ConfigurationError => e
         puts '[ERROR] ' + e.message
         exit(1)

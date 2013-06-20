@@ -1,10 +1,10 @@
 require 'goliath'
-require 'rubytus/error'
 require 'rubytus/uid'
+require 'rubytus/error'
 require 'rubytus/setup'
 require 'rubytus/request'
-require 'rubytus/rack/handler'
 require 'rubytus/storage'
+require 'rubytus/rack/handler'
 
 module Rubytus
   class API < Goliath::API
@@ -61,10 +61,7 @@ module Rubytus
     def on_body(env, data)
       if env['api.action'] == :patch
         begin
-          fpath = storage.file_path(env['api.uid'])
-          file = File.open(fpath, 'ab')
-          file.sync = true
-          file.write(data)
+          file = storage.patch_file(env['api.uid'], data)
           env['api.file'] = file
         rescue PermissionError => e
           raise Goliath::Validation::Error.new(500, e.message)
@@ -103,7 +100,6 @@ module Rubytus
           headers['Offset'] = info['Offset'].to_s
 
         when :get
-          info = storage.read_info(env['api.uid'])
           body = storage.read_file(env['api.uid'])
         end
       rescue PermissionError => e

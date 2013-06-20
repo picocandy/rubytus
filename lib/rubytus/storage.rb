@@ -38,6 +38,19 @@ module Rubytus
       end
     end
 
+    def patch_file(uid, data)
+      fpath = file_path(uid)
+
+      begin
+        f = File.open(fpath, 'ab')
+        f.sync = true
+        f.write(data)
+        f
+      rescue SystemCallError => e
+        raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
+      end
+    end
+
     def read_info(uid)
       ipath = info_path(uid)
 
@@ -50,10 +63,14 @@ module Rubytus
 
     def update_info(uid, info)
       ipath = info_path(uid)
-      info  = read_info(uid).merge(info)
+      info = read_info(uid).merge(info)
 
-      File.open(ipath, 'w') do |f|
-        f.write(JSON.dump(info))
+      begin
+        File.open(ipath, 'w') do |f|
+          f.write(JSON.dump(info))
+        end
+      rescue SystemCallError => e
+        raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
       end
     end
 
