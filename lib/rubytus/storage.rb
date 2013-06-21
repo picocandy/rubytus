@@ -38,14 +38,21 @@ module Rubytus
       end
     end
 
-    def patch_file(uid, data)
+    def open_file(uid)
       fpath = file_path(uid)
 
       begin
         f = File.open(fpath, 'ab')
         f.sync = true
-        f.write(data)
         f
+      rescue SystemCallError => e
+        raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
+      end
+    end
+
+    def patch_file(f, data)
+      begin
+        f.write(data)
       rescue SystemCallError => e
         raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
       end

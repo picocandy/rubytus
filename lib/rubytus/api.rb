@@ -39,9 +39,12 @@ module Rubytus
 
         if request.resource? && request.patch?
           if request.resumable_content_type?
+            uid = request.resource_uid
+
             env['api.action'] = :patch
-            env['api.uid']    = request.resource_uid
+            env['api.uid']    = uid
             env['api.offset'] = request.offset
+            env['api.file']   = storage.open_file(uid)
           else
             raise HeaderError, "Content-Type must be '#{RESUMABLE_CONTENT_TYPE}'"
           end
@@ -58,12 +61,7 @@ module Rubytus
 
     def on_body(env, data)
       if env['api.action'] == :patch
-        begin
-          file = storage.patch_file(env['api.uid'], data)
-          env['api.file'] = file
-        rescue PermissionError => e
-          raise Goliath::Validation::Error.new(STATUS_INTERNAL_ERROR, e.message)
-        end
+        storage.patch_file(env['api.file'], data)
       end
     end
 

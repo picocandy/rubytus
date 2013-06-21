@@ -49,8 +49,11 @@ class TestStorage < MiniTest::Test
   end
 
   def test_patch_file_failed
+    data = 'abc'
     storage = Rubytus::Storage.new(@read_only_options)
-    assert_raises(Rubytus::PermissionError) { storage.patch_file(@uid, 'abc') }
+    file = Object.new
+    stub(file).write(data) { raise SystemCallError.new('', 13) }
+    assert_raises(Rubytus::PermissionError) { storage.patch_file(file, data) }
   end
 
   def test_read_info
