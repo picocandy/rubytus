@@ -38,21 +38,21 @@ module Rubytus
         end
 
         if request.resource? && request.patch?
-          if request.resumable_content_type?
-            uid  = request.resource_uid
-            info = storage.read_info(uid)
-
-            if request.offset > info['Offset']
-              raise UploadError, "Offset: #{request.offset} exceeds current offset: #{info['Offset']}"
-            end
-
-            env['api.action'] = :patch
-            env['api.uid']    = uid
-            env['api.offset'] = request.offset
-            env['api.file']   = storage.open_file(uid)
-          else
+          unless request.resumable_content_type?
             raise HeaderError, "Content-Type must be '#{RESUMABLE_CONTENT_TYPE}'"
           end
+
+          uid  = request.resource_uid
+          info = storage.read_info(uid)
+
+          if request.offset > info['Offset']
+            raise UploadError, "Offset: #{request.offset} exceeds current offset: #{info['Offset']}"
+          end
+
+          env['api.action'] = :patch
+          env['api.uid']    = uid
+          env['api.offset'] = request.offset
+          env['api.file']   = storage.open_file(uid)
         end
 
         if request.resource? && request.get?
