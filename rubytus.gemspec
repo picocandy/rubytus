@@ -24,6 +24,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rr"
   spec.add_development_dependency "simplecov"
   spec.add_development_dependency "em-http-request"
+  spec.add_development_dependency "pry"
 
   # spec.add_runtime_dependency "goliath"
 end

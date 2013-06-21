@@ -101,4 +101,9 @@ class TestStorage < MiniTest::Test
     storage = Rubytus::Storage.new(@read_only_options)
     assert_raises(Rubytus::PermissionError) { storage.read_file(@uid) }
   end
+
+  def test_open_file_failure
+    storage = Rubytus::Storage.new(@read_only_options)
+    assert_raises(Rubytus::PermissionError) { storage.open_file(@uid) }
+  end
 end

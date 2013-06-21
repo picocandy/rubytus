@@ -39,7 +39,12 @@ module Rubytus
 
         if request.resource? && request.patch?
           if request.resumable_content_type?
-            uid = request.resource_uid
+            uid  = request.resource_uid
+            info = storage.read_info(uid)
+
+            if request.offset > info['Offset']
+              raise UploadError, "Offset: #{request.offset} exceeds current offset: #{info['Offset']}"
+            end
 
             env['api.action'] = :patch
             env['api.uid']    = uid
@@ -54,8 +59,12 @@ module Rubytus
           env['api.action'] = :get
           env['api.uid']    = request.resource_uid
         end
+
       rescue HeaderError => e
         raise Goliath::Validation::Error.new(STATUS_BAD_REQUEST, e.message)
+
+      rescue UploadError => e
+        raise Goliath::Validation::Error.new(STATUS_FORBIDDEN, e.message)
       end
     end
 

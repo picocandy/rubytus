@@ -97,8 +97,14 @@ class TestAPI < MiniTest::Test
   end
 
   def test_patch_request_for_resource
+    ruid = uid
+
+    any_instance_of(Rubytus::Storage) do |klass|
+      stub(klass).read_info(ruid) { { 'Offset' => 0 } }
+    end
+
     params = {
-      :path => "/uploads/#{uid}",
+      :path => "/uploads/#{ruid}",
       :body => 'abc',
       :head => {
         'Offset' => '0',
@@ -109,6 +115,29 @@ class TestAPI < MiniTest::Test
     with_api(Rubytus::API, default_options) do
       patch_request(params, @err) do |c|
         assert_equal 200, c.response_header.status
+      end
+    end
+  end
+
+  def test_patch_request_for_resource_exceed_offset
+    ruid = uid
+
+    any_instance_of(Rubytus::Storage) do |klass|
+      stub(klass).read_info(ruid) { { 'Offset' => 0 } }
+    end
+
+    params = {
+      :path => "/uploads/#{ruid}",
+      :body => 'abc',
+      :head => {
+        'Offset' => '3',
+        'Content-Type' => 'application/offset+octet-stream'
+      }
+    }
+
+    with_api(Rubytus::API, default_options) do
+      patch_request(params, @err) do |c|
+        assert_equal 403, c.response_header.status
       end
     end
   end
