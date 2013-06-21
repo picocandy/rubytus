@@ -1,6 +1,8 @@
+require 'rubytus/constants'
+
 module Rubytus
   module Setup
-    BASE_PATH_REGEX = /^(\/[a-zA-Z0-9\-_]+\/)$/
+    include Rubytus::Constants
 
     attr_reader :storage
 
@@ -28,9 +30,9 @@ module Rubytus
 
     def init_options
       {
-        :data_dir  => ENV['TUSD_DATA_DIR']  || 'tus_data',
-        :base_path => ENV['TUSD_BASE_PATH'] || '/files/',
-        :max_size  => ENV['TUSD_MAX_SIZE']  || 1024 * 1024 * 1024
+        :data_dir  => ENV[ENV_DATA_DIR]  || DEFAULT_DATA_DIR,
+        :base_path => ENV[ENV_BASE_PATH] || DEFAULT_BASE_PATH,
+        :max_size  => ENV[ENV_MAX_SIZE]  || DEFAULT_MAX_SIZE
       }
     end
 

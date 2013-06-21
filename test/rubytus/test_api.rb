@@ -44,16 +44,26 @@ class TestAPI < MiniTest::Test
   end
 
   def test_post_request_for_collection_with_negative_final_length
+    params = {
+      :path => '/uploads/',
+      :head => { 'Final-Length' => '-1'}
+    }
+
     with_api(Rubytus::API, default_options) do
-      post_request({ :path => '/uploads/', :head => { 'Final-Length' => '-1'} }, @err) do |c|
+      post_request(params, @err) do |c|
         assert_equal 400, c.response_header.status
       end
     end
   end
 
   def test_post_request_for_collection
+    params = {
+      :path => '/uploads/',
+      :head => { 'Final-Length' => '10' }
+    }
+
     with_api(Rubytus::API, default_options) do
-      post_request({ :path => '/uploads/', :head => { 'Final-Length' => '10' } }, @err) do |c|
+      post_request(params, @err) do |c|
         assert_equal 201, c.response_header.status
         assert c.response_header.location
       end
@@ -70,7 +80,14 @@ class TestAPI < MiniTest::Test
   end
 
   def test_patch_request_for_resource_without_valid_content_type
-    params = { :path => "/uploads/#{uid}", :head => { 'Offset' => '0', 'Content-Type' => 'plain/text' }, :body => 'abc'}
+    params = {
+      :path => "/uploads/#{uid}",
+      :body => 'abc',
+      :head => {
+        'Offset' => '0',
+        'Content-Type' => 'plain/text'
+      }
+    }
 
     with_api(Rubytus::API, default_options) do
       patch_request(params, @err) do |c|
@@ -80,7 +97,14 @@ class TestAPI < MiniTest::Test
   end
 
   def test_patch_request_for_resource
-    params = { :path => "/uploads/#{uid}", :head => { 'Offset' => '0', 'Content-Type' => 'application/offset+octet-stream' }, :body => 'abc'}
+    params = {
+      :path => "/uploads/#{uid}",
+      :body => 'abc',
+      :head => {
+        'Offset' => '0',
+        'Content-Type' => 'application/offset+octet-stream'
+      }
+    }
 
     with_api(Rubytus::API, default_options) do
       patch_request(params, @err) do |c|
@@ -91,7 +115,14 @@ class TestAPI < MiniTest::Test
 
   def test_patch_request_for_resource_failure
     options = default_options.merge({:data_dir => '/opt/rubytusd'})
-    params  = { :path => "/uploads/#{uid}", :head => { 'Offset' => '0', 'Content-Type' => 'application/offset+octet-stream' }, :body => 'abc'}
+    params  = {
+      :path => "/uploads/#{uid}",
+      :body => 'abc',
+      :head => {
+        'Offset' => '0',
+        'Content-Type' => 'application/offset+octet-stream'
+      }
+    }
 
     any_instance_of(Rubytus::API) do |klass|
       stub(klass).setup { true }
@@ -116,6 +147,20 @@ class TestAPI < MiniTest::Test
       head_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
         assert_equal 200, c.response_header.status
         assert_equal '3', c.response_header['OFFSET']
+      end
+    end
+  end
+
+  def test_get_request_for_resource_failure
+    ruid = uid
+
+    any_instance_of(Rubytus::Storage) do |klass|
+      stub(klass).read_file(ruid) { raise Rubytus::PermissionError }
+    end
+
+    with_api(Rubytus::API, default_options) do
+      get_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
+        assert_equal 500, c.response_header.status
       end
     end
   end

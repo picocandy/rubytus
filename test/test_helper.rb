@@ -6,7 +6,6 @@ require 'goliath/test_helper'
 require 'rubytus/error'
 require 'rubytus/setup'
 require 'rubytus/uid'
-require 'pry'
 
 Goliath.env = :test
 

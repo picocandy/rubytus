@@ -1,7 +1,8 @@
+require 'rubytus/constants'
+
 module Rubytus
   class Request
-    RESOURCE_UID_REGEX = /^([a-z0-9]{32})$/
-    RESUMABLE_CONTENT_TYPE = 'application/offset+octet-stream'
+    include Rubytus::Constants
 
     def initialize(env)
       @env = env
@@ -13,12 +14,8 @@ module Rubytus
     def patch?;   request_method == 'PATCH'; end
     def options?; request_method == 'OPTIONS'; end
 
-    def request_method
-      @env['REQUEST_METHOD']
-    end
-
     def resumable_content_type?
-      @env['CONTENT_TYPE'] == RESUMABLE_CONTENT_TYPE
+      content_type == RESUMABLE_CONTENT_TYPE
     end
 
     def unknown?
@@ -26,7 +23,7 @@ module Rubytus
     end
 
     def collection?
-      path_info.chomp('/') == @env['api.options'][:base_path].chomp('/')
+      path_info.chomp('/') == base_path.chomp('/')
     end
 
     def resource?
@@ -35,12 +32,12 @@ module Rubytus
 
     def resource_uid
       rpath = path_info.dup
-      rpath.slice!(@env['api.options'][:base_path])
+      rpath.slice!(base_path)
       rpath
     end
 
     def resource_url(uid)
-      "http://#{host_with_port}#{@env['api.options'][:base_path]}#{uid}"
+      "#{scheme}://#{host_with_port}#{base_path}#{uid}"
     end
 
     def final_length
@@ -51,34 +48,49 @@ module Rubytus
       fetch_positive_header('HTTP_OFFSET')
     end
 
+    def base_path
+      @env['api.options'][:base_path]
+    end
+
+    def scheme
+      @env['HTTPS'] ? 'https' : 'http'
+    end
+
     def path_info
       @env['PATH_INFO']
     end
 
     def host_with_port
-      @env['HTTP_HOST'] || "#{@env['SERVER_NAME'] || @env['SERVER_ADDR']}:#{@env['SERVER_PORT']}"
+      @env['HTTP_HOST'] || "#{@env['SERVER_NAME']}:#{@env['SERVER_PORT']}"
+    end
+
+    def request_method
+      @env['REQUEST_METHOD']
+    end
+
+    def content_type
+      @env['CONTENT_TYPE']
     end
 
     protected
     def fetch_positive_header(header_name)
-      header_val  = @env.fetch(header_name, '')
+      header_val  = @env[header_name] || ''
       value       = header_val.to_i
-      orig_header = http_orig_header(header_name)
+      header_orig = normalize_header_name(header_name)
 
       if header_val.empty?
-        raise HeaderError, "#{orig_header} header must not be empty"
+        raise HeaderError, "#{header_orig} header must not be empty"
       end
 
       if value < 0
-        raise HeaderError, "#{orig_header}, header must be > 0"
+        raise HeaderError, "#{header_orig}, header must be > 0"
       end
 
       value
     end
 
-    def http_orig_header(header_name)
+    def normalize_header_name(header_name)
       header_name.gsub('HTTP_', '').split('_').map(&:capitalize).join('-')
     end
   end
 end
-

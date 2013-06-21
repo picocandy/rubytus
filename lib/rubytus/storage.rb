@@ -16,7 +16,7 @@ module Rubytus
       }
 
       begin
-        File.open(fpath, 'w') {} # create empty file
+        File.open(fpath, 'w') {}
         File.open(ipath, 'w') do |f|
           f.write(JSON.dump(info))
         end

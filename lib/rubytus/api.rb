@@ -4,10 +4,12 @@ require 'rubytus/error'
 require 'rubytus/setup'
 require 'rubytus/request'
 require 'rubytus/storage'
+require 'rubytus/constants'
 require 'rubytus/rack/handler'
 
 module Rubytus
   class API < Goliath::API
+    include Rubytus::Constants
     include Rubytus::Setup
 
     use Rubytus::Rack::Handler
@@ -16,17 +18,12 @@ module Rubytus
       request = Rubytus::Request.new(env)
 
       env['api.options'] = @options
-      env['api.headers'] = {
-        'Content-Type'                  => 'text/plain; charset=utf-8',
-        'Access-Control-Allow-Origin'   => '*',
-        'Access-Control-Allow-Methods'  => 'HEAD,GET,PUT,POST,PATCH,DELETE',
-        'Access-Control-Allow-Headers'  => 'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition, Final-Length, Offset',
-        'Access-Control-Expose-Headers' => 'Location, Range, Content-Disposition, Offset',
-        'Date'                          => Time.now.httpdate
-      }
+      env['api.headers'] = INITIAL_HEADERS.merge({
+        'Date' => Time.now.httpdate
+      })
 
       begin
-        if request.collection? and request.post?
+        if request.collection? && request.post?
           uid = generate_uid
 
           env['api.action']       = :create
@@ -35,27 +32,27 @@ module Rubytus
           env['api.resource_url'] = request.resource_url(uid)
         end
 
-        if request.resource? and request.head?
+        if request.resource? && request.head?
           env['api.action'] = :head
           env['api.uid']    = request.resource_uid
         end
 
-        if request.resource? and request.patch?
+        if request.resource? && request.patch?
           if request.resumable_content_type?
             env['api.action'] = :patch
             env['api.uid']    = request.resource_uid
             env['api.offset'] = request.offset
           else
-            raise HeaderError, "Content-Type must be 'application/offset+octet-stream'"
+            raise HeaderError, "Content-Type must be '#{RESUMABLE_CONTENT_TYPE}'"
           end
         end
 
-        if request.resource? and request.get?
+        if request.resource? && request.get?
           env['api.action'] = :get
           env['api.uid']    = request.resource_uid
         end
       rescue HeaderError => e
-        raise Goliath::Validation::Error.new(400, e.message)
+        raise Goliath::Validation::Error.new(STATUS_BAD_REQUEST, e.message)
       end
     end
 
@@ -65,7 +62,7 @@ module Rubytus
           file = storage.patch_file(env['api.uid'], data)
           env['api.file'] = file
         rescue PermissionError => e
-          raise Goliath::Validation::Error.new(500, e.message)
+          raise Goliath::Validation::Error.new(STATUS_INTERNAL_ERROR, e.message)
         end
       end
     end
@@ -74,13 +71,14 @@ module Rubytus
       file = env['api.file']
 
       if file
-        storage.update_info(env['api.uid'], 'Offset' => file.size)
-        file.close
+        size = file.size
+        file.close unless file.closed?
+        storage.update_info(env['api.uid'], 'Offset' => size)
       end
     end
 
     def response(env)
-      status  = 200
+      status  = STATUS_OK
       headers = env['api.headers']
       action  = env['api.action']
       body    = []
@@ -88,7 +86,7 @@ module Rubytus
       begin
         case action
         when :create
-          status = 201
+          status = STATUS_CREATED
           data   = {
             :final_length => env['api.final_length']
           }
