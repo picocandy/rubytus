@@ -1,1 +1,4 @@
-require 'rubytus/api'
+require 'rubytus/version'
+
+module Rubytus
+end

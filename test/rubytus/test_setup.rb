@@ -23,6 +23,14 @@ class TestConfiguration < MiniTest::Test
     assert_equal "777", sprintf("%o", File.world_writable?(dir))
   end
 
+  def test_validate_data_dir_relative_path
+    config = @config.dup
+    dir    = "rubytus-#{rand(1000)}"
+    assert_equal dir, File.basename(config.validate_data_dir(dir))
+    assert_equal "777", sprintf("%o", File.world_writable?(dir))
+    FileUtils.rm_rf(dir)
+  end
+
   def test_validate_data_dir_permission_error
     assert_raises(Rubytus::PermissionError) { @config.validate_data_dir('/opt/rubytus') }
   end

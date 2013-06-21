@@ -1,3 +1,4 @@
+require 'pathname'
 require 'rubytus/constants'
 
 module Rubytus
@@ -53,21 +54,23 @@ module Rubytus
     end
 
     def validate_data_dir(data_dir)
-      expand_dir = File.expand_path(data_dir)
+      if Pathname.new(data_dir).relative?
+        data_dir = File.join(ENV['PWD'], data_dir)
+      end
 
       begin
-        unless File.directory?(expand_dir)
-          Dir.mkdir(expand_dir)
+        unless File.directory?(data_dir)
+          Dir.mkdir(data_dir)
         end
       rescue SystemCallError => _
-        raise PermissionError, "Couldn't create `data_dir` in #{expand_dir}"
+        raise PermissionError, "Couldn't create `data_dir` in #{data_dir}"
       end
 
-      unless File.world_writable?(expand_dir)
-        File.chmod(0777, expand_dir)
+      unless File.world_writable?(data_dir)
+        File.chmod(0777, data_dir)
       end
 
-      expand_dir
+      data_dir
     end
 
     def validate_base_path(base_path)

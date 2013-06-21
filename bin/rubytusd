@@ -1,12 +1,14 @@
 #!/usr/bin/env ruby
 
+require 'pathname'
+bin = Pathname.new(__FILE__).realpath
+
+ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', bin)
+ENV['RACK_ENV'] ||= ENV['TUSD_ENV'] || 'development'
+
 require 'bundler'
+Bundler.setup
 Bundler.require(:default)
 
-require 'goliath/runner'
-
-api = Rubytus::API.new
-runner = Goliath::Runner.new(ARGV, api)
-runner.app = Goliath::Rack::Builder.build(Rubytus::API, api)
-runner.run
+require 'rubytus/api'
 
