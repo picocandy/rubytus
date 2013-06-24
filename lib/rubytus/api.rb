@@ -5,7 +5,6 @@ require 'rubytus/request'
 require 'rubytus/storage'
 require 'rubytus/constants'
 require 'rubytus/rack/handler'
-require 'pry'
 
 module Rubytus
   class API < Goliath::API
@@ -45,20 +44,16 @@ module Rubytus
           uid  = request.resource_uid
           info = storage.read_info(uid)
 
-          if request.offset > info['Offset']
-            raise UploadError, "Offset: #{request.offset} exceeds current offset: #{info['Offset']}"
+          if request.offset > info.offset
+            raise UploadError, "Offset: #{request.offset} exceeds current offset: #{info.offset}"
           end
 
-          desired_length = info['FinalLength'] - info['Offset']
-
-          if request.content_length > desired_length
-            raise UploadError, "Content-Length: #{request.content_length} exceeded desired length: #{desired_length}"
+          if request.content_length > info.remaining_length
+            raise UploadError, "Content-Length: #{request.content_length} exceeded desired length: #{info.remaining_length}"
           end
 
-          total_length = request.content_length + request.offset
-
-          if total_length > info['FinalLength']
-            raise UploadError, "Content-Length + Offset (#{total_length}) exceeded final length: #{info['FinalLength']}"
+          if request.total_length > info.final_length
+            raise UploadError, "Content-Length + Offset (#{request.total_length}) exceeded final length: #{info.final_length}"
           end
 
           env['api.action'] = :patch
@@ -91,7 +86,7 @@ module Rubytus
       if file
         size = file.size
         file.close unless file.closed?
-        storage.update_info(env['api.uid'], 'Offset' => size)
+        storage.update_info(env['api.uid'], size)
       end
     end
 
@@ -110,7 +105,7 @@ module Rubytus
 
         when :head
           info = storage.read_info(env['api.uid'])
-          headers['Offset'] = info['Offset'].to_s
+          headers['Offset'] = info.offset.to_s
 
         when :get
           body = storage.read_file(env['api.uid'])

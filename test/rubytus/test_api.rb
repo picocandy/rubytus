@@ -1,5 +1,6 @@
 require 'test_helper'
 require 'rubytus/api'
+require 'rubytus/info'
 
 class TestAPI < MiniTest::Test
   include Rubytus::Mock
@@ -98,9 +99,10 @@ class TestAPI < MiniTest::Test
 
   def test_patch_request_for_resource
     ruid = uid
+    info = Rubytus::Info.new(:offset => 0, :final_length => 3)
 
     any_instance_of(Rubytus::Storage) do |klass|
-      stub(klass).read_info(ruid) { { 'Offset' => 0, 'FinalLength' => 3 } }
+      stub(klass).read_info(ruid) { info }
       stub(klass).open_file(ruid, 0) { f = Object.new; stub(f).write() { true } }
     end
 
@@ -116,7 +118,6 @@ class TestAPI < MiniTest::Test
 
     with_api(Rubytus::API, default_options) do
       patch_request(params, @err) do |c|
-        binding.pry
         assert_equal 200, c.response_header.status
       end
     end
@@ -124,9 +125,10 @@ class TestAPI < MiniTest::Test
 
   def test_patch_request_for_resource_exceed_offset
     ruid = uid
+    info = Rubytus::Info.new(:offset => 0)
 
     any_instance_of(Rubytus::Storage) do |klass|
-      stub(klass).read_info(ruid) { { 'Offset' => 0 } }
+      stub(klass).read_info(ruid) { info }
     end
 
     params = {
@@ -170,9 +172,10 @@ class TestAPI < MiniTest::Test
 
   def test_head_request_for_resource
     ruid = uid
+    info = Rubytus::Info.new(:offset => 3)
 
     any_instance_of(Rubytus::Storage) do |klass|
-      stub(klass).read_info(ruid) { { 'Offset' => 3 } }
+      stub(klass).read_info(ruid) { info }
     end
 
     with_api(Rubytus::API, default_options) do

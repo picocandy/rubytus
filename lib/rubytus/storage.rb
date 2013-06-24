@@ -1,4 +1,5 @@
 require 'json'
+require 'rubytus/info'
 
 module Rubytus
   class Storage
@@ -9,16 +10,13 @@ module Rubytus
     def create_file(uid, final_length)
       fpath = file_path(uid)
       ipath = info_path(uid)
-      info  = {
-        'Offset'      => 0,
-        'FinalLength' => final_length,
-        'Meta'        => nil
-      }
+      info  = Rubytus::Info.new
+      info.final_length = final_length
 
       begin
         File.open(fpath, 'w') {}
         File.open(ipath, 'w') do |f|
-          f.write(JSON.dump(info))
+          f.write(info.to_json)
         end
       rescue SystemCallError => e
         raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
@@ -63,19 +61,21 @@ module Rubytus
       ipath = info_path(uid)
 
       begin
-        JSON.parse(File.open(ipath, 'r') { |f| f.read })
+        data = File.open(ipath, 'r') { |f| f.read }
+        JSON.parse(data, :object_class => Rubytus::Info)
       rescue SystemCallError => e
         raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
       end
     end
 
-    def update_info(uid, info)
+    def update_info(uid, offset)
       ipath = info_path(uid)
-      info = read_info(uid).merge(info)
+      info = read_info(uid)
+      info.offset = offset
 
       begin
         File.open(ipath, 'w') do |f|
-          f.write(JSON.dump(info))
+          f.write(info.to_json)
         end
       rescue SystemCallError => e
         raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')

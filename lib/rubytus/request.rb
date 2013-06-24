@@ -40,6 +40,10 @@ module Rubytus
       "#{scheme}://#{host_with_port}#{base_path}#{uid}"
     end
 
+    def total_length
+      content_length + offset
+    end
+
     def final_length
       fetch_positive_header('HTTP_FINAL_LENGTH')
     end
