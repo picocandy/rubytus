@@ -51,8 +51,7 @@ module Rubytus
 
           env['api.action'] = :patch
           env['api.uid']    = uid
-          env['api.offset'] = request.offset
-          env['api.file']   = storage.open_file(uid)
+          env['api.file']   = storage.open_file(uid, request.offset)
         end
 
         if request.resource? && request.get?

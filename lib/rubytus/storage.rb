@@ -38,12 +38,13 @@ module Rubytus
       end
     end
 
-    def open_file(uid)
+    def open_file(uid, offset = nil)
       fpath = file_path(uid)
 
       begin
-        f = File.open(fpath, 'ab')
+        f = File.open(fpath, 'r+b')
         f.sync = true
+        f.seek(offset) unless offset.nil?
         f
       rescue SystemCallError => e
         raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')

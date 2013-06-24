@@ -83,7 +83,7 @@ module Rubytus
       end
 
       if value < 0
-        raise HeaderError, "#{header_orig}, header must be > 0"
+        raise HeaderError, "#{header_orig} header must be > 0"
       end
 
       value

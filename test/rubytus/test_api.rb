@@ -101,6 +101,7 @@ class TestAPI < MiniTest::Test
 
     any_instance_of(Rubytus::Storage) do |klass|
       stub(klass).read_info(ruid) { { 'Offset' => 0 } }
+      stub(klass).open_file(ruid, 0) { f = Object.new; stub(f).write() { true } }
     end
 
     params = {

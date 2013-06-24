@@ -37,8 +37,8 @@ module Rubytus
       }
     end
 
-    def init_storage(opts)
-      Storage.new(opts)
+    def init_storage(options)
+      Storage.new(options)
     end
 
     def setup
