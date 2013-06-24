@@ -4,17 +4,14 @@ require 'minitest/pride'
 require 'rr'
 require 'goliath/test_helper'
 require 'rubytus/error'
-require 'rubytus/setup'
-require 'rubytus/uid'
+require 'rubytus/helpers'
 require 'pry'
 
 Goliath.env = :test
 
 module Rubytus
   module Mock
-    def pdf
-      File.expand_path('../files/protocol.pdf', __FILE__)
-    end
+    include Rubytus::Helpers
 
     def data_dir
       "/tmp/rubytus-#{rand(1000)}"
@@ -25,7 +22,7 @@ module Rubytus
     end
 
     def uid
-      Rubytus::Uid.uid
+      generate_uid
     end
 
     def default_options
@@ -37,7 +34,7 @@ module Rubytus
     end
 
     class Config
-      include Rubytus::Setup
+      include Rubytus::Helpers
     end
   end
 end

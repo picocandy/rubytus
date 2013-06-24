@@ -28,7 +28,7 @@ module Rubytus
 
         if request.unknown?
           status = STATUS_NOT_FOUND
-          body   = "unknown url: #{request.path_info} - does not match file pattern"
+          body   = "Unknown url: #{request.path_info} - does not match file pattern"
         end
 
         [status, headers, body]

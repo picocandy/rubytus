@@ -72,6 +72,10 @@ module Rubytus
       @env['CONTENT_TYPE']
     end
 
+    def content_length
+      @env['CONTENT_LENGTH'].to_i
+    end
+
     protected
     def fetch_positive_header(header_name)
       header_val  = @env[header_name] || ''

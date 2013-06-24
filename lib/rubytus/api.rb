@@ -1,16 +1,16 @@
 require 'goliath'
-require 'rubytus/uid'
 require 'rubytus/error'
-require 'rubytus/setup'
+require 'rubytus/helpers'
 require 'rubytus/request'
 require 'rubytus/storage'
 require 'rubytus/constants'
 require 'rubytus/rack/handler'
+require 'pry'
 
 module Rubytus
   class API < Goliath::API
     include Rubytus::Constants
-    include Rubytus::Setup
+    include Rubytus::Helpers
 
     use Rubytus::Rack::Handler
 
@@ -18,7 +18,7 @@ module Rubytus
       request = Rubytus::Request.new(env)
 
       env['api.options'] = @options
-      env['api.headers'] = INITIAL_HEADERS.merge({
+      env['api.headers'] = COMMON_HEADERS.merge({
         'Date' => Time.now.httpdate
       })
 
@@ -47,6 +47,18 @@ module Rubytus
 
           if request.offset > info['Offset']
             raise UploadError, "Offset: #{request.offset} exceeds current offset: #{info['Offset']}"
+          end
+
+          desired_length = info['FinalLength'] - info['Offset']
+
+          if request.content_length > desired_length
+            raise UploadError, "Content-Length: #{request.content_length} exceeded desired length: #{desired_length}"
+          end
+
+          total_length = request.content_length + request.offset
+
+          if total_length > info['FinalLength']
+            raise UploadError, "Content-Length + Offset (#{total_length}) exceeded final length: #{info['FinalLength']}"
           end
 
           env['api.action'] = :patch
@@ -93,12 +105,8 @@ module Rubytus
         case action
         when :create
           status = STATUS_CREATED
-          data   = {
-            :final_length => env['api.final_length']
-          }
-
-          storage.create_file(env['api.uid'], data)
           headers['Location'] = env['api.resource_url']
+          storage.create_file(env['api.uid'], env['api.final_length'])
 
         when :head
           info = storage.read_info(env['api.uid'])
@@ -112,11 +120,6 @@ module Rubytus
       end
 
       [status, headers, body]
-    end
-
-    private
-    def generate_uid
-      Rubytus::Uid.uid
     end
   end
 end

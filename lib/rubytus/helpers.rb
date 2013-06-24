@@ -1,8 +1,9 @@
 require 'pathname'
+require 'securerandom'
 require 'rubytus/constants'
 
 module Rubytus
-  module Setup
+  module Helpers
     include Rubytus::Constants
 
     attr_reader :storage
@@ -91,6 +92,10 @@ module Rubytus
       end
 
       max_size
+    end
+
+    def generate_uid
+      SecureRandom.hex(16)
     end
   end
 end

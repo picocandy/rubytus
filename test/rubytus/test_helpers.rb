@@ -2,7 +2,7 @@ require 'test_helper'
 require 'fileutils'
 require 'stringio'
 
-class TestConfiguration < MiniTest::Test
+class TestHelpers < MiniTest::Test
   include Rubytus::Mock
 
   def setup
@@ -137,5 +137,9 @@ class TestConfiguration < MiniTest::Test
     assert_equal dir, options[:data_dir]
     assert_equal '512', options[:max_size]
     assert_equal '/uploads/', options[:base_path]
+  end
+
+  def test_uid
+    assert_equal 32, (@config.generate_uid).length
   end
 end

@@ -6,12 +6,12 @@ module Rubytus
       @options = options
     end
 
-    def create_file(uid, data = {})
+    def create_file(uid, final_length)
       fpath = file_path(uid)
       ipath = info_path(uid)
       info  = {
         'Offset'      => 0,
-        'FinalLength' => data[:final_length],
+        'FinalLength' => final_length,
         'Meta'        => nil
       }
 

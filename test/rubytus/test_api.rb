@@ -100,7 +100,7 @@ class TestAPI < MiniTest::Test
     ruid = uid
 
     any_instance_of(Rubytus::Storage) do |klass|
-      stub(klass).read_info(ruid) { { 'Offset' => 0 } }
+      stub(klass).read_info(ruid) { { 'Offset' => 0, 'FinalLength' => 3 } }
       stub(klass).open_file(ruid, 0) { f = Object.new; stub(f).write() { true } }
     end
 
@@ -109,12 +109,14 @@ class TestAPI < MiniTest::Test
       :body => 'abc',
       :head => {
         'Offset' => '0',
+        'Content-Length' => '3',
         'Content-Type' => 'application/offset+octet-stream'
       }
     }
 
     with_api(Rubytus::API, default_options) do
       patch_request(params, @err) do |c|
+        binding.pry
         assert_equal 200, c.response_header.status
       end
     end

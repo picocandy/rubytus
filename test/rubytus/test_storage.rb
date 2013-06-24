@@ -1,10 +1,10 @@
 require 'test_helper'
 require 'rubytus/storage'
-require 'rubytus/setup'
+require 'rubytus/helpers'
 
 class TestStorage < MiniTest::Test
   include Rubytus::Mock
-  include Rubytus::Setup
+  include Rubytus::Helpers
 
   def setup
     @data_dir = data_dir
@@ -38,14 +38,14 @@ class TestStorage < MiniTest::Test
   end
 
   def test_create_file
-    @storage.create_file(@uid, :final_length => 512)
+    @storage.create_file(@uid, 512)
     assert File.exist?(@storage.file_path(@uid))
     assert File.exist?(@storage.info_path(@uid))
   end
 
   def test_write_file_failed
     storage = Rubytus::Storage.new(@read_only_options)
-    assert_raises(Rubytus::PermissionError) { storage.create_file(@uid, :final_length => 512) }
+    assert_raises(Rubytus::PermissionError) { storage.create_file(@uid, 512) }
   end
 
   def test_patch_file_failed
