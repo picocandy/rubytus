@@ -7,22 +7,11 @@ class TestStorage < MiniTest::Test
   include Rubytus::Helpers
 
   def setup
-    @data_dir = data_dir
+    options = default_options
+    validate_data_dir(options[:data_dir])
 
-    @options = {
-      :data_dir  => @data_dir,
-      :base_path => '/uploads/'
-    }
-
-    @read_only_options = {
-      :data_dir  => "/opt/rubytus",
-      :base_path => '/uploads/'
-    }
-
-    validate_data_dir(@data_dir)
-
-    @uid   = uid
-    @storage = Rubytus::Storage.new(@options)
+    @uid     = uid
+    @storage = Rubytus::Storage.new(options)
   end
 
   def teardown
@@ -44,13 +33,13 @@ class TestStorage < MiniTest::Test
   end
 
   def test_write_file_failed
-    storage = Rubytus::Storage.new(@read_only_options)
+    storage = Rubytus::Storage.new(read_only_options)
     assert_raises(Rubytus::PermissionError) { storage.create_file(@uid, 512) }
   end
 
   def test_patch_file_failed
     data = 'abc'
-    storage = Rubytus::Storage.new(@read_only_options)
+    storage = Rubytus::Storage.new(read_only_options)
     file = Object.new
     stub(file).write(data) { raise SystemCallError.new('', 13) }
     assert_raises(Rubytus::PermissionError) { storage.patch_file(file, data) }
@@ -67,7 +56,7 @@ class TestStorage < MiniTest::Test
   end
 
   def test_read_info_failure
-    storage = Rubytus::Storage.new(@read_only_options)
+    storage = Rubytus::Storage.new(read_only_options)
     assert_raises(Rubytus::PermissionError) { storage.read_info(@uid) }
   end
 
@@ -84,7 +73,7 @@ class TestStorage < MiniTest::Test
   end
 
   def test_update_info_failure
-    storage = Rubytus::Storage.new(@read_only_options)
+    storage = Rubytus::Storage.new(read_only_options)
     stub(storage).read_info(@uid) { Rubytus::Info.new('Offset' => 100) }
     assert_raises(Rubytus::PermissionError) { storage.update_info(@uid, 250) }
   end
@@ -98,12 +87,12 @@ class TestStorage < MiniTest::Test
   end
 
   def test_read_file_failure
-    storage = Rubytus::Storage.new(@read_only_options)
+    storage = Rubytus::Storage.new(read_only_options)
     assert_raises(Rubytus::PermissionError) { storage.read_file(@uid) }
   end
 
   def test_open_file_failure
-    storage = Rubytus::Storage.new(@read_only_options)
+    storage = Rubytus::Storage.new(read_only_options)
     assert_raises(Rubytus::PermissionError) { storage.open_file(@uid) }
   end
 end

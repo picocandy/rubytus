@@ -11,16 +11,20 @@ class TestAPI < MiniTest::Test
   end
 
   def test_get_request_for_root
+    params = { :path => '/' }
+
     with_api(Rubytus::API, default_options) do
-      get_request({ :path => '/' }, @err) do |c|
+      get_request(params, @err) do |c|
         assert_equal 404, c.response_header.status
       end
     end
   end
 
   def test_options_request_for_collection
+    params = { :path => '/uploads/' }
+
     with_api(Rubytus::API, default_options) do
-      options_request({ :path => '/uploads/' }, @err) do |c|
+      options_request(params, @err) do |c|
         assert_equal 200, c.response_header.status
         assert_equal '', c.response
       end
@@ -28,8 +32,10 @@ class TestAPI < MiniTest::Test
   end
 
   def test_get_request_for_collection
+    params = { :path => '/uploads/' }
+
     with_api(Rubytus::API, default_options) do
-      get_request({ :path => '/uploads/' }, @err) do |c|
+      get_request(params, @err) do |c|
         assert_equal 405, c.response_header.status
         assert_equal 'POST', c.response_header['ALLOW']
       end
@@ -37,8 +43,10 @@ class TestAPI < MiniTest::Test
   end
 
   def test_post_request_for_collection_without_final_length
+    params = { :path => '/uploads/' }
+
     with_api(Rubytus::API, default_options) do
-      post_request({ :path => '/uploads/' }, @err) do |c|
+      post_request(params, @err) do |c|
         assert_equal 400, c.response_header.status
       end
     end
@@ -98,25 +106,24 @@ class TestAPI < MiniTest::Test
   end
 
   def test_patch_request_for_resource
-    ruid = uid
-    info = Rubytus::Info.new(:offset => 0, :final_length => 3)
+    options = default_options
+    ruid    = uid
 
-    any_instance_of(Rubytus::Storage) do |klass|
-      stub(klass).read_info(ruid) { info }
-      stub(klass).open_file(ruid, 0) { f = Object.new; stub(f).write() { true } }
-    end
+    validate_data_dir(options[:data_dir])
+
+    storage = Rubytus::Storage.new(options)
+    storage.create_file(ruid, 3)
 
     params = {
       :path => "/uploads/#{ruid}",
       :body => 'abc',
       :head => {
         'Offset' => '0',
-        'Content-Length' => '3',
         'Content-Type' => 'application/offset+octet-stream'
       }
     }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::API, options) do
       patch_request(params, @err) do |c|
         assert_equal 200, c.response_header.status
       end
@@ -147,8 +154,32 @@ class TestAPI < MiniTest::Test
     end
   end
 
+  def test_patch_request_for_resource_exceed_remaining_length
+    ruid = uid
+    info = Rubytus::Info.new(:offset => 0, :final_length => 2)
+
+    any_instance_of(Rubytus::Storage) do |klass|
+      stub(klass).read_info(ruid) { info }
+    end
+
+    params = {
+      :path => "/uploads/#{ruid}",
+      :body => 'abcdef',
+      :head => {
+        'Offset' => '0',
+        'Content-Type' => 'application/offset+octet-stream'
+      }
+    }
+
+    with_api(Rubytus::API, default_options) do
+      patch_request(params, @err) do |c|
+        assert_equal 403, c.response_header.status
+      end
+    end
+  end
+
   def test_patch_request_for_resource_failure
-    options = default_options.merge({:data_dir => '/opt/rubytusd'})
+    options = read_only_options
     params  = {
       :path => "/uploads/#{uid}",
       :body => 'abc',

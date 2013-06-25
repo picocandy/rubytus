@@ -33,6 +33,12 @@ module Rubytus
       }
     end
 
+    def read_only_options
+      default_options.merge({
+        :data_dir => '/opt/rubytus'
+      })
+    end
+
     class Config
       include Rubytus::Helpers
     end

@@ -49,11 +49,7 @@ module Rubytus
           end
 
           if request.content_length > info.remaining_length
-            raise UploadError, "Content-Length: #{request.content_length} exceeded desired length: #{info.remaining_length}"
-          end
-
-          if request.total_length > info.final_length
-            raise UploadError, "Content-Length + Offset (#{request.total_length}) exceeded final length: #{info.final_length}"
+            raise UploadError, "Content-Length: #{request.content_length} exceeded remaining length: #{info.remaining_length}"
           end
 
           env['api.action'] = :patch
