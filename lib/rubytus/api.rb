@@ -1,13 +1,16 @@
 require 'goliath'
+require 'goliath/constants'
 require 'rubytus/error'
 require 'rubytus/helpers'
 require 'rubytus/request'
 require 'rubytus/storage'
 require 'rubytus/constants'
 require 'rubytus/rack/handler'
+require 'stringio'
 
 module Rubytus
   class API < Goliath::API
+    include Goliath::Constants
     include Rubytus::Constants
     include Rubytus::Helpers
 
@@ -73,6 +76,9 @@ module Rubytus
     def on_body(env, data)
       if env['api.action'] == :patch
         storage.patch_file(env['api.file'], data)
+      else
+        body = StringIO.new(data)
+        env[RACK_INPUT] = body
       end
     end
 
