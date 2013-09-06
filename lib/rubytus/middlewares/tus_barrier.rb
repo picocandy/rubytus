@@ -1,8 +1,6 @@
-require 'rubytus/constants'
-
 module Rubytus
-  module Rack
-    class Handler
+  module Middlewares
+    class TusBarrier
       include Rubytus::Constants
       include Goliath::Rack::AsyncMiddleware
 

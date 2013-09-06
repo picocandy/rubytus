@@ -5,10 +5,12 @@ module Rubytus
 
     RESUMABLE_CONTENT_TYPE = 'application/offset+octet-stream'
 
+    ENV_STORAGE            = 'TUSD_STORAGE'
     ENV_DATA_DIR           = 'TUSD_DATA_DIR'
     ENV_BASE_PATH          = 'TUSD_BASE_PATH'
     ENV_MAX_SIZE           = 'TUSD_MAX_SIZE'
 
+    DEFAULT_STORAGE        = 'local'
     DEFAULT_DATA_DIR       = 'tus_data'
     DEFAULT_BASE_PATH      = '/files/'
     DEFAULT_MAX_SIZE       = 1073741824

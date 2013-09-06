@@ -36,22 +36,16 @@ module Rubytus
       end
     end
 
-    def open_file(uid, offset = nil)
+    def patch_file(uid, data, offset = nil)
       fpath = file_path(uid)
-
       begin
         f = File.open(fpath, 'r+b')
         f.sync = true
         f.seek(offset) unless offset.nil?
-        f
-      rescue SystemCallError => e
-        raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
-      end
-    end
-
-    def patch_file(f, data)
-      begin
         f.write(data)
+        size = f.size
+        f.close
+        update_info(uid, size)
       rescue SystemCallError => e
         raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
       end
@@ -68,6 +62,7 @@ module Rubytus
       end
     end
 
+    private
     def update_info(uid, offset)
       ipath = info_path(uid)
       info = read_info(uid)

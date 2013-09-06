@@ -1,8 +1,10 @@
 require 'rubytus/constants'
+require 'rubytus/common'
 
 module Rubytus
   class Request
     include Rubytus::Constants
+    include Rubytus::Common
 
     def initialize(env)
       @env = env
@@ -83,11 +85,11 @@ module Rubytus
       header_orig = normalize_header_name(header_name)
 
       if header_val.empty?
-        raise HeaderError, "#{header_orig} header must not be empty"
+        error!(STATUS_BAD_REQUEST, "#{header_orig} header must not be empty")
       end
 
       if value < 0
-        raise HeaderError, "#{header_orig} header must be > 0"
+        error!(STATUS_BAD_REQUEST, "#{header_orig} header must be > 0")
       end
 
       value

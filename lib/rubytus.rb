@@ -1,4 +1,3 @@
 require 'rubytus/version'
 
-module Rubytus
-end
+module Rubytus; end
