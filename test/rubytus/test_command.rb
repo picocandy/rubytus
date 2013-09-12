@@ -1,9 +1,10 @@
 require 'test_helper'
-require 'rubytus/api'
+require 'rubytus/command'
 require 'rubytus/info'
 
-class TestAPI < MiniTest::Test
+class TestRubytusCommand < MiniTest::Test
   include Rubytus::Mock
+  include Rubytus::StorageHelper
   include Goliath::TestHelper
 
   def setup
@@ -13,7 +14,7 @@ class TestAPI < MiniTest::Test
   def test_get_request_for_root
     params = { :path => '/' }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       get_request(params, @err) do |c|
         assert_equal 404, c.response_header.status
       end
@@ -23,7 +24,7 @@ class TestAPI < MiniTest::Test
   def test_options_request_for_collection
     params = { :path => '/uploads/' }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       options_request(params, @err) do |c|
         assert_equal 200, c.response_header.status
         assert_equal '', c.response
@@ -34,7 +35,7 @@ class TestAPI < MiniTest::Test
   def test_get_request_for_collection
     params = { :path => '/uploads/' }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       get_request(params, @err) do |c|
         assert_equal 405, c.response_header.status
         assert_equal 'POST', c.response_header['ALLOW']
@@ -45,7 +46,7 @@ class TestAPI < MiniTest::Test
   def test_post_request_for_collection_without_final_length
     params = { :path => '/uploads/' }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
         assert_equal 400, c.response_header.status
       end
@@ -58,7 +59,7 @@ class TestAPI < MiniTest::Test
       :head => { 'Final-Length' => '-1'}
     }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
         assert_equal 400, c.response_header.status
       end
@@ -71,7 +72,7 @@ class TestAPI < MiniTest::Test
       :head => { 'Final-Length' => '10' }
     }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
         assert_equal 201, c.response_header.status
         assert c.response_header.location
@@ -80,7 +81,7 @@ class TestAPI < MiniTest::Test
   end
 
   def test_put_request_for_resource
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       put_request({ :path => "/uploads/#{uid}" }, @err) do |c|
         assert_equal 405, c.response_header.status
         assert_equal 'HEAD,PATCH', c.response_header['ALLOW']
@@ -98,7 +99,7 @@ class TestAPI < MiniTest::Test
       }
     }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       patch_request(params, @err) do |c|
         assert_equal 400, c.response_header.status
       end
@@ -109,7 +110,7 @@ class TestAPI < MiniTest::Test
     options = default_options
     ruid    = uid
 
-    validate_data_dir(options[:data_dir])
+    validates_data_dir(options[:data_dir])
 
     storage = Rubytus::Storage.new(options)
     storage.create_file(ruid, 3)
@@ -123,7 +124,7 @@ class TestAPI < MiniTest::Test
       }
     }
 
-    with_api(Rubytus::API, options) do
+    with_api(Rubytus::Command, options) do
       patch_request(params, @err) do |c|
         assert_equal 200, c.response_header.status
       end
@@ -147,7 +148,7 @@ class TestAPI < MiniTest::Test
       }
     }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       patch_request(params, @err) do |c|
         assert_equal 403, c.response_header.status
       end
@@ -171,7 +172,7 @@ class TestAPI < MiniTest::Test
       }
     }
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       patch_request(params, @err) do |c|
         assert_equal 403, c.response_header.status
       end
@@ -189,12 +190,12 @@ class TestAPI < MiniTest::Test
       }
     }
 
-    any_instance_of(Rubytus::API) do |klass|
+    any_instance_of(Rubytus::Command) do |klass|
       stub(klass).setup { true }
       stub(klass).storage { Rubytus::Storage.new(options) }
     end
 
-    with_api(Rubytus::API, options) do
+    with_api(Rubytus::Command, options) do
       patch_request(params, @err) do |c|
         assert_equal 500, c.response_header.status
       end
@@ -209,7 +210,7 @@ class TestAPI < MiniTest::Test
       stub(klass).read_info(ruid) { info }
     end
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       head_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
         assert_equal 200, c.response_header.status
         assert_equal '3', c.response_header['OFFSET']
@@ -224,7 +225,7 @@ class TestAPI < MiniTest::Test
       stub(klass).read_file(ruid) { raise Rubytus::PermissionError }
     end
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       get_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
         assert_equal 500, c.response_header.status
       end
@@ -238,7 +239,7 @@ class TestAPI < MiniTest::Test
       stub(klass).read_file(ruid) { 'abc' }
     end
 
-    with_api(Rubytus::API, default_options) do
+    with_api(Rubytus::Command, default_options) do
       get_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
         assert_equal 200, c.response_header.status
         assert_equal 'abc', c.response

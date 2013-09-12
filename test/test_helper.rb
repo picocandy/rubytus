@@ -5,6 +5,8 @@ require 'rr'
 require 'goliath/test_helper'
 require 'rubytus/error'
 require 'rubytus/helpers'
+require 'rubytus/common'
+require 'rubytus/storage'
 require 'pry'
 
 Goliath.env = :test
@@ -12,6 +14,7 @@ Goliath.env = :test
 module Rubytus
   module Mock
     include Rubytus::Helpers
+    include Rubytus::Common
 
     def data_dir
       "/tmp/rubytus-#{rand(1000)}"
@@ -41,6 +44,8 @@ module Rubytus
 
     class Config
       include Rubytus::Helpers
+      include Rubytus::Common
+      include Rubytus::StorageHelper
     end
   end
 end

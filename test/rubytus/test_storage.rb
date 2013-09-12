@@ -5,10 +5,11 @@ require 'rubytus/helpers'
 class TestStorage < MiniTest::Test
   include Rubytus::Mock
   include Rubytus::Helpers
+  include Rubytus::StorageHelper
 
   def setup
     options = default_options
-    validate_data_dir(options[:data_dir])
+    validates_data_dir(options[:data_dir])
 
     @uid     = uid
     @storage = Rubytus::Storage.new(options)
@@ -89,10 +90,5 @@ class TestStorage < MiniTest::Test
   def test_read_file_failure
     storage = Rubytus::Storage.new(read_only_options)
     assert_raises(Rubytus::PermissionError) { storage.read_file(@uid) }
-  end
-
-  def test_open_file_failure
-    storage = Rubytus::Storage.new(read_only_options)
-    assert_raises(Rubytus::PermissionError) { storage.open_file(@uid) }
   end
 end

@@ -1,8 +1,46 @@
 require 'json'
 require 'rubytus/info'
+require 'rubytus/error'
+require 'pathname'
 
 module Rubytus
+  module StorageHelper
+    def validates_data_dir(data_dir)
+      if Pathname.new(data_dir).relative?
+        data_dir = File.join(ENV['PWD'], data_dir)
+      end
+
+      begin
+        unless File.directory?(data_dir)
+          Dir.mkdir(data_dir)
+        end
+      rescue SystemCallError => _
+        raise PermissionError, "Couldn't create `data_dir` in #{data_dir}"
+      end
+
+      unless File.world_writable?(data_dir)
+        begin
+          File.chmod(0777, data_dir)
+        rescue Errno::EPERM
+          raise PermissionError, "Couldn't make `data_dir` in #{data_dir} writable"
+        end
+      end
+
+      data_dir
+    end
+
+    def file_path(uid)
+      File.join(@options[:data_dir], "#{uid}.bin")
+    end
+
+    def info_path(uid)
+      File.join(@options[:data_dir], "#{uid}.info")
+    end
+  end
+
   class Storage
+    include StorageHelper
+
     def initialize(options)
       @options = options
     end
@@ -62,7 +100,6 @@ module Rubytus
       end
     end
 
-    private
     def update_info(uid, offset)
       ipath = info_path(uid)
       info = read_info(uid)
@@ -75,14 +112,6 @@ module Rubytus
       rescue SystemCallError => e
         raise(PermissionError, e.message) if e.class.name.start_with?('Errno::')
       end
-    end
-
-    def file_path(uid)
-      File.join(@options[:data_dir], "#{uid}.bin")
-    end
-
-    def info_path(uid)
-      File.join(@options[:data_dir], "#{uid}.info")
     end
   end
 end
