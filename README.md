@@ -2,8 +2,10 @@
 
 Resumable upload protocol implementation in Ruby
 
+[![Gem Version](https://badge.fury.io/rb/rubytus.png)](http://badge.fury.io/rb/rubytus)
 [![Build Status](https://travis-ci.org/picocandy/rubytus.png)](https://travis-ci.org/picocandy/rubytus)
 [![Coverage Status](https://coveralls.io/repos/picocandy/rubytus/badge.png?branch=master)](https://coveralls.io/r/picocandy/rubytus?branch=master)
+[![Dependency Status](https://gemnasium.com/picocandy/rubytus.png)](https://gemnasium.com/picocandy/rubytus)
 
 ## Installation
 
