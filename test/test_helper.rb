@@ -1,4 +1,5 @@
 require 'simplecov'
+require 'coveralls'
 require 'minitest/autorun'
 require 'minitest/pride'
 require 'rr'
@@ -8,6 +9,11 @@ require 'rubytus/helpers'
 require 'rubytus/common'
 require 'rubytus/storage'
 require 'pry'
+
+SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
+  SimpleCov::Formatter::HTMLFormatter,
+  Coveralls::SimpleCov::Formatter
+]
 
 Goliath.env = :test
 
