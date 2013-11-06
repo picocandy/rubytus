@@ -6,10 +6,7 @@ Resumable upload protocol implementation in Ruby
 [![Build Status](https://travis-ci.org/picocandy/rubytus.png)](https://travis-ci.org/picocandy/rubytus)
 [![Coverage Status](https://coveralls.io/repos/picocandy/rubytus/badge.png?branch=master)](https://coveralls.io/r/picocandy/rubytus?branch=master)
 [![Dependency Status](https://gemnasium.com/picocandy/rubytus.png)](https://gemnasium.com/picocandy/rubytus)
-[ ![Codeship Status for picocandy/rubytus](https://www.codeship.io/projects/752c6230-28d4-0131-3d51-0a1cd65a540f/status?branch=master)](https://www.codeship.io/projects/9065)
-
-
-https://www.codeship.io/projects/752c6230-28d4-0131-3d51-0a1cd65a540f/status
+[![Codeship Status for picocandy/rubytus](https://www.codeship.io/projects/752c6230-28d4-0131-3d51-0a1cd65a540f/status?branch=master)](https://www.codeship.io/projects/9065)
 
 ## Installation
 
