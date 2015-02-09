@@ -15,6 +15,9 @@ module Rubytus
     DEFAULT_BASE_PATH      = '/files/'
     DEFAULT_MAX_SIZE       = 1073741824
 
+    SUPPORTED_VERSIONS     = ['1.0.0']
+    SUPPORTED_EXTENSIONS   = ['file-creation']
+
     STATUS_OK                  = 200
     STATUS_CREATED             = 201
     STATUS_BAD_REQUEST         = 400
@@ -24,9 +27,7 @@ module Rubytus
     STATUS_PRECONDITION_FAILED = 412
     STATUS_INTERNAL_ERROR      = 500
 
-    SUPPORTED_VERSIONS     = ['1.0.0']
-
-    COMMON_HEADERS         = {
+    COMMON_HEADERS = {
       'Access-Control-Allow-Origin'   => '*',
       'Access-Control-Allow-Methods'  => 'HEAD,GET,PUT,POST,PATCH,DELETE',
       'Access-Control-Allow-Headers'  => 'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition, Final-Length, Offset',

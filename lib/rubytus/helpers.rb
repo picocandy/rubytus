@@ -14,6 +14,14 @@ module Rubytus
         validates_supported_version(headers["Tus-Resumable"])
       end
 
+      # OPTIONS
+      if request.collection? && request.options?
+        env['api.headers'].merge!({
+          'TUS-Extension' => SUPPORTED_EXTENSIONS.join(','),
+          'TUS-Max-Size'  => env['api.options'][:max_size].to_s
+        })
+      end
+
       # CREATE
       if request.collection? && request.post?
         uid = generate_uid

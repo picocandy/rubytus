@@ -20,8 +20,16 @@ Goliath.env = :test
 
 module Rubytus
   module Assertions
-    def assert_has_protocol(headers)
-      assert_equal '1.0.0', headers["TUS_RESUMABLE"]
+    def assert_tus_protocol(headers, version = '1.0.0')
+      assert_equal version, headers["TUS_RESUMABLE"]
+    end
+
+    def assert_tus_extensions(headers, extensions)
+      assert_equal extensions, headers['TUS_EXTENSION'].split(',')
+    end
+
+    def assert_tus_max_size(headers, max_size = DEFAULT_MAX_SIZE)
+      assert_equal max_size.to_s, headers['TUS_MAX_SIZE']
     end
   end
 

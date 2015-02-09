@@ -20,7 +20,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       get_request(params, @err) do |c|
-        assert_has_protocol c.response_header
+        assert_tus_protocol c.response_header
         assert_equal STATUS_NOT_FOUND, c.response_header.status
       end
     end
@@ -48,7 +48,9 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       options_request(params, @err) do |c|
-        assert_has_protocol c.response_header
+        assert_tus_protocol c.response_header
+        assert_tus_extensions c.response_header, SUPPORTED_EXTENSIONS
+        assert_tus_max_size c.response_header, (1024 * 1024)
         assert_equal STATUS_OK, c.response_header.status
         assert_equal '', c.response
       end
@@ -63,7 +65,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       get_request(params, @err) do |c|
-        assert_has_protocol c.response_header
+        assert_tus_protocol c.response_header
         assert_equal STATUS_NOT_ALLOWED, c.response_header.status
         assert_equal 'POST', c.response_header['ALLOW']
       end
@@ -104,7 +106,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
-        assert_has_protocol c.response_header
+        assert_tus_protocol c.response_header
         assert_equal STATUS_CREATED, c.response_header.status
         assert c.response_header.location
       end
@@ -119,7 +121,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       put_request(params, @err) do |c|
-        assert_has_protocol c.response_header
+        assert_tus_protocol c.response_header
         assert_equal 405, c.response_header.status
         assert_equal 'HEAD,PATCH', c.response_header['ALLOW']
       end
@@ -163,7 +165,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, options) do
       patch_request(params, @err) do |c|
-        assert_has_protocol c.response_header
+        assert_tus_protocol c.response_header
         assert_equal STATUS_OK, c.response_header.status
       end
     end
@@ -255,7 +257,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       head_request(params, @err) do |c|
-        assert_has_protocol c.response_header
+        assert_tus_protocol c.response_header
         assert_equal STATUS_OK, c.response_header.status
         assert_equal '3', c.response_header['OFFSET']
       end
@@ -295,7 +297,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       get_request(params, @err) do |c|
-        assert_has_protocol c.response_header
+        assert_tus_protocol c.response_header
         assert_equal STATUS_OK, c.response_header.status
         assert_equal 'abc', c.response
       end
