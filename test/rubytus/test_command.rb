@@ -11,6 +11,10 @@ class TestRubytusCommand < MiniTest::Test
     @err = Proc.new { assert false, 'API request failed' }
   end
 
+  def protocol_header
+    { 'TUS-Resumable' => '1.0.0' }
+  end
+
   def test_get_request_for_root
     params = { :path => '/' }
 
@@ -22,8 +26,25 @@ class TestRubytusCommand < MiniTest::Test
     end
   end
 
+  def test_supported_version
+    params = {
+      :path => '/uploads/',
+      :head => { 'TUS-Resumable' => '0.0.1' }
+    }
+
+    with_api(Rubytus::Command, default_options) do
+      options_request(params, @err) do |c|
+        assert_equal STATUS_PRECONDITION_FAILED, c.response_header.status
+        assert_equal '{"error":"Unsupported version: 0.0.1. Please use: 1.0.0."}', c.response
+      end
+    end
+  end
+
   def test_options_request_for_collection
-    params = { :path => '/uploads/' }
+    params = {
+      :path => '/uploads/',
+      :head => protocol_header
+    }
 
     with_api(Rubytus::Command, default_options) do
       options_request(params, @err) do |c|
@@ -35,7 +56,10 @@ class TestRubytusCommand < MiniTest::Test
   end
 
   def test_get_request_for_collection
-    params = { :path => '/uploads/' }
+    params = {
+      :path => '/uploads/',
+      :head => protocol_header
+    }
 
     with_api(Rubytus::Command, default_options) do
       get_request(params, @err) do |c|
@@ -47,7 +71,10 @@ class TestRubytusCommand < MiniTest::Test
   end
 
   def test_post_request_for_collection_without_final_length
-    params = { :path => '/uploads/' }
+    params = {
+      :path => '/uploads/',
+      :head => protocol_header
+    }
 
     with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
@@ -59,7 +86,7 @@ class TestRubytusCommand < MiniTest::Test
   def test_post_request_for_collection_with_negative_final_length
     params = {
       :path => '/uploads/',
-      :head => { 'Final-Length' => '-1'}
+      :head => protocol_header.merge({ 'Final-Length' => '-1'})
     }
 
     with_api(Rubytus::Command, default_options) do
@@ -72,7 +99,7 @@ class TestRubytusCommand < MiniTest::Test
   def test_post_request_for_collection
     params = {
       :path => '/uploads/',
-      :head => { 'Final-Length' => '10' }
+      :head => protocol_header.merge({ 'Final-Length' => '10' })
     }
 
     with_api(Rubytus::Command, default_options) do
@@ -85,8 +112,13 @@ class TestRubytusCommand < MiniTest::Test
   end
 
   def test_put_request_for_resource
+    params = {
+      :path => "/uploads/#{uid}",
+      :head => protocol_header
+    }
+
     with_api(Rubytus::Command, default_options) do
-      put_request({ :path => "/uploads/#{uid}" }, @err) do |c|
+      put_request(params, @err) do |c|
         assert_has_protocol c.response_header
         assert_equal 405, c.response_header.status
         assert_equal 'HEAD,PATCH', c.response_header['ALLOW']
@@ -98,10 +130,10 @@ class TestRubytusCommand < MiniTest::Test
     params = {
       :path => "/uploads/#{uid}",
       :body => 'abc',
-      :head => {
+      :head => protocol_header.merge({
         'Offset' => '0',
         'Content-Type' => 'plain/text'
-      }
+      })
     }
 
     with_api(Rubytus::Command, default_options) do
@@ -123,10 +155,10 @@ class TestRubytusCommand < MiniTest::Test
     params = {
       :path => "/uploads/#{ruid}",
       :body => 'abc',
-      :head => {
+      :head => protocol_header.merge({
         'Offset' => '0',
         'Content-Type' => 'application/offset+octet-stream'
-      }
+      })
     }
 
     with_api(Rubytus::Command, options) do
@@ -148,10 +180,10 @@ class TestRubytusCommand < MiniTest::Test
     params = {
       :path => "/uploads/#{ruid}",
       :body => 'abc',
-      :head => {
+      :head => protocol_header.merge({
         'Offset' => '3',
         'Content-Type' => 'application/offset+octet-stream'
-      }
+      })
     }
 
     with_api(Rubytus::Command, default_options) do
@@ -172,10 +204,10 @@ class TestRubytusCommand < MiniTest::Test
     params = {
       :path => "/uploads/#{ruid}",
       :body => 'abcdef',
-      :head => {
+      :head => protocol_header.merge({
         'Offset' => '0',
         'Content-Type' => 'application/offset+octet-stream'
-      }
+      })
     }
 
     with_api(Rubytus::Command, default_options) do
@@ -190,10 +222,10 @@ class TestRubytusCommand < MiniTest::Test
     params  = {
       :path => "/uploads/#{uid}",
       :body => 'abc',
-      :head => {
+      :head => protocol_header.merge({
         'Offset' => '0',
         'Content-Type' => 'application/offset+octet-stream'
-      }
+      })
     }
 
     any_instance_of(Rubytus::Command) do |klass|
@@ -216,8 +248,13 @@ class TestRubytusCommand < MiniTest::Test
       stub(klass).read_info(ruid) { info }
     end
 
+    params = {
+      :path => "/uploads/#{ruid}",
+      :head => protocol_header
+    }
+
     with_api(Rubytus::Command, default_options) do
-      head_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
+      head_request(params, @err) do |c|
         assert_has_protocol c.response_header
         assert_equal STATUS_OK, c.response_header.status
         assert_equal '3', c.response_header['OFFSET']
@@ -232,8 +269,13 @@ class TestRubytusCommand < MiniTest::Test
       stub(klass).read_file(ruid) { raise Rubytus::PermissionError }
     end
 
+    params = {
+      :path => "/uploads/#{ruid}",
+      :head => protocol_header
+    }
+
     with_api(Rubytus::Command, default_options) do
-      get_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
+      get_request(params, @err) do |c|
         assert_equal STATUS_INTERNAL_ERROR, c.response_header.status
       end
     end
@@ -246,8 +288,13 @@ class TestRubytusCommand < MiniTest::Test
       stub(klass).read_file(ruid) { 'abc' }
     end
 
+    params = {
+      :path => "/uploads/#{ruid}",
+      :head => protocol_header
+    }
+
     with_api(Rubytus::Command, default_options) do
-      get_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
+      get_request(params, @err) do |c|
         assert_has_protocol c.response_header
         assert_equal STATUS_OK, c.response_header.status
         assert_equal 'abc', c.response

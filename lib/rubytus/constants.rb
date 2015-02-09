@@ -15,13 +15,16 @@ module Rubytus
     DEFAULT_BASE_PATH      = '/files/'
     DEFAULT_MAX_SIZE       = 1073741824
 
-    STATUS_OK              = 200
-    STATUS_CREATED         = 201
-    STATUS_BAD_REQUEST     = 400
-    STATUS_FORBIDDEN       = 403
-    STATUS_NOT_FOUND       = 404
-    STATUS_NOT_ALLOWED     = 405
-    STATUS_INTERNAL_ERROR  = 500
+    STATUS_OK                  = 200
+    STATUS_CREATED             = 201
+    STATUS_BAD_REQUEST         = 400
+    STATUS_FORBIDDEN           = 403
+    STATUS_NOT_FOUND           = 404
+    STATUS_NOT_ALLOWED         = 405
+    STATUS_PRECONDITION_FAILED = 412
+    STATUS_INTERNAL_ERROR      = 500
+
+    SUPPORTED_VERSIONS     = ['1.0.0']
 
     COMMON_HEADERS         = {
       'Access-Control-Allow-Origin'   => '*',

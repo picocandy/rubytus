@@ -10,6 +10,10 @@ module Rubytus
     def prepare_headers(env, headers)
       request = Rubytus::Request.new(env)
 
+      if request.collection? || request.resource?
+        validates_supported_version(headers["Tus-Resumable"])
+      end
+
       # CREATE
       if request.collection? && request.post?
         uid = generate_uid
@@ -31,9 +35,7 @@ module Rubytus
 
         # PATCH
         if request.patch?
-          unless request.resumable_content_type?
-            error!(STATUS_BAD_REQUEST, "Content-Type must be '#{RESUMABLE_CONTENT_TYPE}'")
-          end
+          validates_content_type(request)
 
           env['api.action']  = :patch
           env['api.buffers'] = ''
@@ -77,6 +79,18 @@ module Rubytus
       end
 
       max_size
+    end
+
+    def validates_content_type(request)
+      unless request.resumable_content_type?
+        error!(STATUS_BAD_REQUEST, "Content-Type must be '#{RESUMABLE_CONTENT_TYPE}'")
+      end
+    end
+
+    def validates_supported_version(version)
+      unless SUPPORTED_VERSIONS.include?(version)
+        error!(STATUS_PRECONDITION_FAILED, "Unsupported version: #{version}. Please use: #{SUPPORTED_VERSIONS.join(', ')}.")
+      end
     end
   end
 end
