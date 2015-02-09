@@ -27,7 +27,8 @@ module Rubytus
       'Access-Control-Allow-Origin'   => '*',
       'Access-Control-Allow-Methods'  => 'HEAD,GET,PUT,POST,PATCH,DELETE',
       'Access-Control-Allow-Headers'  => 'Origin, X-Requested-With, Content-Type, Accept, Content-Disposition, Final-Length, Offset',
-      'Access-Control-Expose-Headers' => 'Location, Range, Content-Disposition, Offset'
+      'Access-Control-Expose-Headers' => 'Location, Range, Content-Disposition, Offset',
+      'TUS-Resumable'                 => '1.0.0'
     }
   end
 end

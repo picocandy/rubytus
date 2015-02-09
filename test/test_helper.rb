@@ -1,5 +1,6 @@
 require 'simplecov'
 require 'coveralls'
+require 'minitest'
 require 'minitest/autorun'
 require 'minitest/pride'
 require 'rr'
@@ -18,9 +19,17 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 Goliath.env = :test
 
 module Rubytus
+  module Assertions
+    def assert_has_protocol(headers)
+      assert_equal '1.0.0', headers["TUS_RESUMABLE"]
+    end
+  end
+
   module Mock
     include Rubytus::Helpers
     include Rubytus::Common
+    include Rubytus::Constants
+    include Rubytus::Assertions
 
     def data_dir
       "/tmp/rubytus-#{rand(1000)}"
@@ -51,6 +60,7 @@ module Rubytus
     class Config
       include Rubytus::Helpers
       include Rubytus::Common
+      include Rubytus::Constants
       include Rubytus::StorageHelper
     end
   end
@@ -76,4 +86,3 @@ module Goliath
     end
   end
 end
-

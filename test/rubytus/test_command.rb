@@ -16,7 +16,8 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       get_request(params, @err) do |c|
-        assert_equal 404, c.response_header.status
+        assert_has_protocol c.response_header
+        assert_equal STATUS_NOT_FOUND, c.response_header.status
       end
     end
   end
@@ -26,7 +27,8 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       options_request(params, @err) do |c|
-        assert_equal 200, c.response_header.status
+        assert_has_protocol c.response_header
+        assert_equal STATUS_OK, c.response_header.status
         assert_equal '', c.response
       end
     end
@@ -37,7 +39,8 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       get_request(params, @err) do |c|
-        assert_equal 405, c.response_header.status
+        assert_has_protocol c.response_header
+        assert_equal STATUS_NOT_ALLOWED, c.response_header.status
         assert_equal 'POST', c.response_header['ALLOW']
       end
     end
@@ -48,7 +51,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
-        assert_equal 400, c.response_header.status
+        assert_equal STATUS_BAD_REQUEST, c.response_header.status
       end
     end
   end
@@ -61,7 +64,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
-        assert_equal 400, c.response_header.status
+        assert_equal STATUS_BAD_REQUEST, c.response_header.status
       end
     end
   end
@@ -74,7 +77,8 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
-        assert_equal 201, c.response_header.status
+        assert_has_protocol c.response_header
+        assert_equal STATUS_CREATED, c.response_header.status
         assert c.response_header.location
       end
     end
@@ -83,6 +87,7 @@ class TestRubytusCommand < MiniTest::Test
   def test_put_request_for_resource
     with_api(Rubytus::Command, default_options) do
       put_request({ :path => "/uploads/#{uid}" }, @err) do |c|
+        assert_has_protocol c.response_header
         assert_equal 405, c.response_header.status
         assert_equal 'HEAD,PATCH', c.response_header['ALLOW']
       end
@@ -101,7 +106,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       patch_request(params, @err) do |c|
-        assert_equal 400, c.response_header.status
+        assert_equal STATUS_BAD_REQUEST, c.response_header.status
       end
     end
   end
@@ -126,7 +131,8 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, options) do
       patch_request(params, @err) do |c|
-        assert_equal 200, c.response_header.status
+        assert_has_protocol c.response_header
+        assert_equal STATUS_OK, c.response_header.status
       end
     end
   end
@@ -150,7 +156,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       patch_request(params, @err) do |c|
-        assert_equal 403, c.response_header.status
+        assert_equal STATUS_FORBIDDEN, c.response_header.status
       end
     end
   end
@@ -174,7 +180,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       patch_request(params, @err) do |c|
-        assert_equal 403, c.response_header.status
+        assert_equal STATUS_FORBIDDEN, c.response_header.status
       end
     end
   end
@@ -197,7 +203,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, options) do
       patch_request(params, @err) do |c|
-        assert_equal 500, c.response_header.status
+        assert_equal STATUS_INTERNAL_ERROR, c.response_header.status
       end
     end
   end
@@ -212,7 +218,8 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       head_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
-        assert_equal 200, c.response_header.status
+        assert_has_protocol c.response_header
+        assert_equal STATUS_OK, c.response_header.status
         assert_equal '3', c.response_header['OFFSET']
       end
     end
@@ -227,7 +234,7 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       get_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
-        assert_equal 500, c.response_header.status
+        assert_equal STATUS_INTERNAL_ERROR, c.response_header.status
       end
     end
   end
@@ -241,7 +248,8 @@ class TestRubytusCommand < MiniTest::Test
 
     with_api(Rubytus::Command, default_options) do
       get_request({ :path => "/uploads/#{ruid}" }, @err) do |c|
-        assert_equal 200, c.response_header.status
+        assert_has_protocol c.response_header
+        assert_equal STATUS_OK, c.response_header.status
         assert_equal 'abc', c.response
       end
     end
