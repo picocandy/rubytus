@@ -30,6 +30,7 @@ module Rubytus
         env['api.uid']          = uid
         env['api.final_length'] = request.final_length
         env['api.resource_url'] = request.resource_url(uid)
+        env['api.metadata']     = parse_metadata(headers['Metadata'])
       end
 
       if request.resource?
@@ -98,6 +99,20 @@ module Rubytus
     def validates_supported_version(version)
       unless SUPPORTED_VERSIONS.include?(version)
         error!(STATUS_PRECONDITION_FAILED, "Unsupported version: #{version}. Please use: #{SUPPORTED_VERSIONS.join(', ')}.")
+      end
+    end
+
+    def parse_metadata(metadata)
+      return if metadata.nil?
+      arr = metadata.split(' ')
+
+      if (arr.length % 2 == 1)
+        error!(STATUS_BAD_REQUEST, "Metadata must be a key-value pair")
+      end
+
+      Hash[*arr].inject({}) do |h, (k, v)|
+        h[k] = Base64.decode64(v)
+        h
       end
     end
   end

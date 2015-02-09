@@ -45,10 +45,10 @@ module Rubytus
       @options = options
     end
 
-    def create_file(uid, final_length)
+    def create_file(uid, final_length, metadata = {})
       fpath = file_path(uid)
       ipath = info_path(uid)
-      info  = Rubytus::Info.new
+      info  = Rubytus::Info.new(metadata)
       info.final_length = final_length
 
       begin

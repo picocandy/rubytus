@@ -98,6 +98,41 @@ class TestRubytusCommand < MiniTest::Test
     end
   end
 
+  def test_post_request_for_collection_with_wrong_metadata
+    params = {
+      :path => '/uploads/',
+      :head => protocol_header.merge({
+        'Final-Length' => '10',
+        'Metadata'     => 'this-is-wrong'
+      })
+    }
+
+    with_api(Rubytus::Command, default_options) do
+      post_request(params, @err) do |c|
+        assert_equal STATUS_BAD_REQUEST, c.response_header.status
+        assert_equal '{"error":"Metadata must be a key-value pair"}', c.response
+      end
+    end
+  end
+
+  def test_post_request_for_collection_with_metadata
+    params = {
+      :path => '/uploads/',
+      :head => protocol_header.merge({
+        'Final-Length' => '10',
+        'Metadata'     => ['filename', encode64('awesome-file.png'), 'mimetype', encode64('image/png')].join(' ')
+      })
+    }
+
+    with_api(Rubytus::Command, default_options) do
+      post_request(params, @err) do |c|
+        assert_tus_protocol c.response_header
+        assert_equal STATUS_CREATED, c.response_header.status
+        assert c.response_header.location
+      end
+    end
+  end
+
   def test_post_request_for_collection
     params = {
       :path => '/uploads/',

@@ -10,6 +10,7 @@ require 'rubytus/helpers'
 require 'rubytus/common'
 require 'rubytus/storage'
 require 'pry'
+require 'base64'
 
 SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
   SimpleCov::Formatter::HTMLFormatter,
@@ -63,6 +64,10 @@ module Rubytus
       default_options.merge({
         :data_dir => '/opt/rubytus'
       })
+    end
+
+    def encode64(str)
+      Base64.encode64(str).gsub("\n", '')
     end
 
     class Config
