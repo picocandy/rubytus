@@ -122,15 +122,12 @@ module Rubytus
     end
 
     def handle_resource(env, headers, request)
-      # UID for this resource
       env['api.uid'] = request.resource_uid
 
-      # HEAD
       if request.head?
         env['api.action'] = :head
       end
 
-      # PATCH
       if request.patch?
         validates_content_type(request)
 
@@ -139,7 +136,6 @@ module Rubytus
         env['api.offset']  = request.offset
       end
 
-      # GET
       if request.get?
         env['api.action'] = :get
       end

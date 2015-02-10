@@ -92,10 +92,6 @@ module Rubytus
         error!(STATUS_BAD_REQUEST, "Invalid Entity-Length: #{value}. It should non-negative integer or string 'streaming'")
       end
 
-      if value < 0
-        error!(STATUS_BAD_REQUEST, "#{header_orig} header must be > 0")
-      end
-
       value
     end
 
