@@ -205,8 +205,9 @@ class TestRubytusCommand < MiniTest::Test
       :path => "/uploads/#{uid}",
       :body => 'abc',
       :head => protocol_header.merge({
-        'Offset' => '0',
-        'Content-Type' => 'plain/text'
+        'Offset'        => '0',
+        'Entity-Length' => '3',
+        'Content-Type'  => 'plain/text'
       })
     }
 
@@ -230,8 +231,9 @@ class TestRubytusCommand < MiniTest::Test
       :path => "/uploads/#{ruid}",
       :body => 'abc',
       :head => protocol_header.merge({
-        'Offset' => '0',
-        'Content-Type' => 'application/offset+octet-stream'
+        'Offset'        => '0',
+        'Entity-Length' => '3',
+        'Content-Type'  => 'application/offset+octet-stream'
       })
     }
 
@@ -255,8 +257,9 @@ class TestRubytusCommand < MiniTest::Test
       :path => "/uploads/#{ruid}",
       :body => 'abc',
       :head => protocol_header.merge({
-        'Offset' => '3',
-        'Content-Type' => 'application/offset+octet-stream'
+        'Offset'        => '3',
+        'Entity-Length' => '3',
+        'Content-Type'  => 'application/offset+octet-stream'
       })
     }
 
@@ -279,8 +282,9 @@ class TestRubytusCommand < MiniTest::Test
       :path => "/uploads/#{ruid}",
       :body => 'abcdef',
       :head => protocol_header.merge({
-        'Offset' => '0',
-        'Content-Type' => 'application/offset+octet-stream'
+        'Offset'        => '0',
+        'Entity-Length' => '6',
+        'Content-Type'  => 'application/offset+octet-stream'
       })
     }
 
@@ -297,8 +301,9 @@ class TestRubytusCommand < MiniTest::Test
       :path => "/uploads/#{uid}",
       :body => 'abc',
       :head => protocol_header.merge({
-        'Offset' => '0',
-        'Content-Type' => 'application/offset+octet-stream'
+        'Offset'        => '0',
+        'Entity-Length' => '3',
+        'Content-Type'  => 'application/offset+octet-stream'
       })
     }
 
