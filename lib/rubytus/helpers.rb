@@ -47,7 +47,6 @@ module Rubytus
         # PATCH
         if request.patch?
           validates_content_type(request)
-          validate_entity_length(headers['Entity-Length'].to_i)
 
           env['api.action']  = :patch
           env['api.buffers'] = ''
@@ -136,12 +135,6 @@ module Rubytus
       end
 
       cors_headers
-    end
-
-    def validate_entity_length(length)
-      if length == 0
-        error!(STATUS_BAD_REQUEST, "Invalid Entity-Length: #{length}. It should non-negative integer or string 'streaming'")
-      end
     end
   end
 end

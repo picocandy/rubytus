@@ -35,7 +35,7 @@ class TestRubytusCommand < MiniTest::Test
     with_api(Rubytus::Command, default_options) do
       options_request(params, @err) do |c|
         assert_equal STATUS_PRECONDITION_FAILED, c.response_header.status
-        assert_equal '{"error":"Unsupported version: 0.0.1. Please use: 1.0.0."}', c.response
+        assert_error_message 'Unsupported version: 0.0.1. Please use: 1.0.0.', c.response
       end
     end
   end
@@ -110,6 +110,7 @@ class TestRubytusCommand < MiniTest::Test
     with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
         assert_equal STATUS_BAD_REQUEST, c.response_header.status
+        assert_error_message "Invalid Entity-Length: -1. It should non-negative integer or string 'streaming'", c.response
       end
     end
   end
@@ -126,7 +127,7 @@ class TestRubytusCommand < MiniTest::Test
     with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
         assert_equal STATUS_BAD_REQUEST, c.response_header.status
-        assert_equal '{"error":"Metadata must be a key-value pair"}', c.response
+        assert_error_message 'Metadata must be a key-value pair', c.response
       end
     end
   end

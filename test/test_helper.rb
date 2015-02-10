@@ -19,6 +19,10 @@ SimpleCov.formatter = SimpleCov::Formatter::MultiFormatter[
 
 Goliath.env = :test
 
+def json_decode(str)
+  MultiJson.load(str, :symbolize_keys => true)
+end
+
 module Rubytus
   module Assertions
     def assert_tus_protocol(headers, version = '1.0.0')
@@ -42,6 +46,11 @@ module Rubytus
 
     def assert_tus_cors_expose(headers, origin = '*')
       assert_equal "Offset, Location, Entity-Length, TUS-Version, TUS-Resumable, TUS-Max-Size, TUS-Extension", headers['Access-Control-Expose-Headers']
+    end
+
+    def assert_error_message(message, response)
+      json = json_decode(response)
+      assert_equal message, json[:error]
     end
   end
 
