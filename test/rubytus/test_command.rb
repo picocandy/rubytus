@@ -51,8 +51,7 @@ class TestRubytusCommand < MiniTest::Test
         assert_tus_protocol c.response_header
         assert_tus_extensions c.response_header, SUPPORTED_EXTENSIONS
         assert_tus_max_size c.response_header, (1024 * 1024)
-        assert_equal STATUS_OK, c.response_header.status
-        assert_equal '', c.response
+        assert_equal STATUS_NO_CONTENT, c.response_header.status
       end
     end
   end
@@ -60,7 +59,7 @@ class TestRubytusCommand < MiniTest::Test
   def test_options_request_for_collection_cors
     params = {
       :path => '/uploads/',
-      :head => protocol_header.merge({ 'Origin' => '*' })
+      :head => protocol_header.merge({ 'Origin' => 'picocandy.io' })
     }
 
     with_api(Rubytus::Command, default_options) do
@@ -68,9 +67,8 @@ class TestRubytusCommand < MiniTest::Test
         assert_tus_protocol c.response_header
         assert_tus_extensions c.response_header, SUPPORTED_EXTENSIONS
         assert_tus_max_size c.response_header, (1024 * 1024)
-        assert_tus_cors_option c.response_header
-        assert_equal STATUS_OK, c.response_header.status
-        assert_equal '', c.response
+        assert_tus_cors_option c.response_header, 'picocandy.io'
+        assert_equal STATUS_NO_CONTENT, c.response_header.status
       end
     end
   end
@@ -156,7 +154,7 @@ class TestRubytusCommand < MiniTest::Test
       :path => '/uploads/',
       :head => protocol_header.merge({
         'Entity-Length' => '10',
-        'Origin'       => '*'
+        'Origin'        => 'picocandy.io'
       })
     }
 
