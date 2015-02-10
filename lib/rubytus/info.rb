@@ -3,9 +3,9 @@ require 'json'
 module Rubytus
   class Info < Hash
     def initialize(args = {})
-      self['Offset']      = args[:offset]       || 0
-      self['FinalLength'] = args[:final_length] || 0
-      self['Meta']        = args[:meta]         || nil
+      self['Offset']       = args[:offset]        || 0
+      self['EntityLength'] = args[:entity_length] || 0
+      self['Meta']         = args[:meta]          || nil
     end
 
     def offset=(value)
@@ -16,16 +16,16 @@ module Rubytus
       self['Offset']
     end
 
-    def final_length=(value)
-      self['FinalLength'] = value.to_i
+    def entity_length=(value)
+      self['EntityLength'] = value.to_i
     end
 
-    def final_length
-      self['FinalLength']
+    def entity_length
+      self['EntityLength']
     end
 
     def remaining_length
-      final_length - offset
+      entity_length - offset
     end
   end
 end

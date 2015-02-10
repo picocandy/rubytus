@@ -16,7 +16,7 @@ module Rubytus
           when :create
             status = STATUS_CREATED
             headers['Location'] = env['api.resource_url']
-            storage.create_file(env['api.uid'], env['api.final_length'])
+            storage.create_file(env['api.uid'], env['api.entity_length'])
 
           when :head
             info = storage.read_info(env['api.uid'])

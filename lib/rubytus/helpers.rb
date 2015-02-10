@@ -28,11 +28,11 @@ module Rubytus
       if request.collection? && request.post?
         uid = generate_uid
 
-        env['api.action']       = :create
-        env['api.uid']          = uid
-        env['api.final_length'] = request.final_length
-        env['api.resource_url'] = request.resource_url(uid)
-        env['api.metadata']     = parse_metadata(headers['Metadata'])
+        env['api.action']        = :create
+        env['api.uid']           = uid
+        env['api.entity_length'] = request.entity_length
+        env['api.resource_url']  = request.resource_url(uid)
+        env['api.metadata']      = parse_metadata(headers['Metadata'])
       end
 
       if request.resource?

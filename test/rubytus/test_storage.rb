@@ -48,7 +48,7 @@ class TestStorage < MiniTest::Test
 
   def test_read_info
     File.open(@storage.info_path(@uid), 'w') do |f|
-      f.write('{"Offset":100,"FinalLength":500,"Meta":null}')
+      f.write('{"Offset":100,"EntityLength":500,"Meta":null}')
     end
 
     info = @storage.read_info(@uid)
@@ -63,7 +63,7 @@ class TestStorage < MiniTest::Test
 
   def test_update_info
     File.open(@storage.info_path(@uid), 'w') do |f|
-      f.write('{"Offset":100,"FinalLength":500,"Meta":null}')
+      f.write('{"Offset":100,"EntityLength":500,"Meta":null}')
     end
 
     @storage.update_info(@uid, 250)

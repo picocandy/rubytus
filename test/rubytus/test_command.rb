@@ -90,7 +90,7 @@ class TestRubytusCommand < MiniTest::Test
     end
   end
 
-  def test_post_request_for_collection_without_final_length
+  def test_post_request_for_collection_without_entity_length
     params = {
       :path => '/uploads/',
       :head => protocol_header
@@ -103,10 +103,10 @@ class TestRubytusCommand < MiniTest::Test
     end
   end
 
-  def test_post_request_for_collection_with_negative_final_length
+  def test_post_request_for_collection_with_negative_entity_length
     params = {
       :path => '/uploads/',
-      :head => protocol_header.merge({ 'Final-Length' => '-1'})
+      :head => protocol_header.merge({ 'Entity-Length' => '-1'})
     }
 
     with_api(Rubytus::Command, default_options) do
@@ -120,7 +120,7 @@ class TestRubytusCommand < MiniTest::Test
     params = {
       :path => '/uploads/',
       :head => protocol_header.merge({
-        'Final-Length' => '10',
+        'Entity-Length' => '10',
         'Metadata'     => 'this-is-wrong'
       })
     }
@@ -137,7 +137,7 @@ class TestRubytusCommand < MiniTest::Test
     params = {
       :path => '/uploads/',
       :head => protocol_header.merge({
-        'Final-Length' => '10',
+        'Entity-Length' => '10',
         'Metadata'     => ['filename', encode64('awesome-file.png'), 'mimetype', encode64('image/png')].join(' ')
       })
     }
@@ -155,7 +155,7 @@ class TestRubytusCommand < MiniTest::Test
     params = {
       :path => '/uploads/',
       :head => protocol_header.merge({
-        'Final-Length' => '10',
+        'Entity-Length' => '10',
         'Origin'       => '*'
       })
     }
@@ -173,7 +173,7 @@ class TestRubytusCommand < MiniTest::Test
   def test_post_request_for_collection
     params = {
       :path => '/uploads/',
-      :head => protocol_header.merge({ 'Final-Length' => '10' })
+      :head => protocol_header.merge({ 'Entity-Length' => '10' })
     }
 
     with_api(Rubytus::Command, default_options) do
@@ -272,7 +272,7 @@ class TestRubytusCommand < MiniTest::Test
 
   def test_patch_request_for_resource_exceed_remaining_length
     ruid = uid
-    info = Rubytus::Info.new(:offset => 0, :final_length => 2)
+    info = Rubytus::Info.new(:offset => 0, :entity_length => 2)
 
     any_instance_of(Rubytus::Storage) do |klass|
       stub(klass).read_info(ruid) { info }

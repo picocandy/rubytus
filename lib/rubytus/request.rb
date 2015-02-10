@@ -42,8 +42,8 @@ module Rubytus
       "#{scheme}://#{host_with_port}#{base_path}#{uid}"
     end
 
-    def final_length
-      fetch_positive_header('HTTP_FINAL_LENGTH')
+    def entity_length
+      fetch_positive_header('HTTP_ENTITY_LENGTH')
     end
 
     def offset
