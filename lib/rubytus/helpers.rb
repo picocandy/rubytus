@@ -16,47 +16,12 @@ module Rubytus
         validates_supported_version(headers["Tus-Resumable"])
       end
 
-      # OPTIONS
-      if request.collection? && request.options?
-        env['api.headers'].merge!({
-          'TUS-Extension' => SUPPORTED_EXTENSIONS.join(','),
-          'TUS-Max-Size'  => env['api.options'][:max_size].to_s
-        })
-      end
-
-      # CREATE
-      if request.collection? && request.post?
-        uid = generate_uid
-
-        env['api.action']        = :create
-        env['api.uid']           = uid
-        env['api.entity_length'] = request.entity_length
-        env['api.resource_url']  = request.resource_url(uid)
-        env['api.metadata']      = parse_metadata(headers['Metadata'])
+      if request.collection?
+        handle_collection(env, headers, request)
       end
 
       if request.resource?
-        # UID for this resource
-        env['api.uid'] = request.resource_uid
-
-        # HEAD
-        if request.head?
-          env['api.action'] = :head
-        end
-
-        # PATCH
-        if request.patch?
-          validates_content_type(request)
-
-          env['api.action']  = :patch
-          env['api.buffers'] = ''
-          env['api.offset']  = request.offset
-        end
-
-        # GET
-        if request.get?
-          env['api.action'] = :get
-        end
+        handle_resource(env, headers, request)
       end
     end
 
@@ -135,6 +100,49 @@ module Rubytus
       end
 
       cors_headers
+    end
+
+    def handle_collection(env, headers, request)
+      if request.options?
+        env['api.headers'].merge!({
+          'TUS-Extension' => SUPPORTED_EXTENSIONS.join(','),
+          'TUS-Max-Size'  => env['api.options'][:max_size].to_s
+        })
+      end
+
+      if request.post?
+        uid = generate_uid
+
+        env['api.action']        = :create
+        env['api.uid']           = uid
+        env['api.entity_length'] = request.entity_length
+        env['api.resource_url']  = request.resource_url(uid)
+        env['api.metadata']      = parse_metadata(headers['Metadata'])
+      end
+    end
+
+    def handle_resource(env, headers, request)
+      # UID for this resource
+      env['api.uid'] = request.resource_uid
+
+      # HEAD
+      if request.head?
+        env['api.action'] = :head
+      end
+
+      # PATCH
+      if request.patch?
+        validates_content_type(request)
+
+        env['api.action']  = :patch
+        env['api.buffers'] = ''
+        env['api.offset']  = request.offset
+      end
+
+      # GET
+      if request.get?
+        env['api.action'] = :get
+      end
     end
   end
 end
