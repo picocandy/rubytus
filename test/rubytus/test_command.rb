@@ -336,6 +336,27 @@ class TestRubytusCommand < MiniTest::Test
     end
   end
 
+  def test_head_request_for_unknown_resource
+    ruid = uid
+
+    any_instance_of(Rubytus::Storage) do |klass|
+      stub(klass).read_info(ruid) { nil }
+    end
+
+    params = {
+      :path => "/uploads/#{ruid}",
+      :head => protocol_header
+    }
+
+    with_api(Rubytus::Command, default_options) do
+      head_request(params, @err) do |c|
+        assert_tus_protocol c.response_header
+        assert_equal STATUS_NOT_FOUND, c.response_header.status
+        assert_equal nil, c.response_header['OFFSET']
+      end
+    end
+  end
+
   def test_get_request_for_resource_failure
     ruid = uid
 

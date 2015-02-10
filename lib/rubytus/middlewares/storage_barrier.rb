@@ -20,7 +20,12 @@ module Rubytus
 
           when :head
             info = storage.read_info(env['api.uid'])
-            headers['Offset'] = info.offset.to_s
+
+            if info.nil?
+              status = STATUS_NOT_FOUND
+            else
+              headers['Offset'] = info.offset.to_s
+            end
 
           when :get
             body = storage.read_file(env['api.uid'])
