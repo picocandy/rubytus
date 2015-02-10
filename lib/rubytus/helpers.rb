@@ -10,6 +10,8 @@ module Rubytus
     def prepare_headers(env, headers)
       request = Rubytus::Request.new(env)
 
+      env['api.headers'].merge!(handle_cors(request, headers))
+
       if request.collection? || request.resource?
         validates_supported_version(headers["Tus-Resumable"])
       end
@@ -114,6 +116,25 @@ module Rubytus
         h[k] = Base64.decode64(v)
         h
       end
+    end
+
+    def handle_cors(request, headers)
+      origin = headers['Origin']
+
+      return {} if origin.nil? || origin == ""
+
+      cors_headers = {}
+      cors_headers['Access-Control-Allow-Origin'] = origin
+
+      if request.options?
+        cors_headers['Access-Control-Allow-Methods']  = "POST, HEAD, PATCH, OPTIONS"
+        cors_headers['Access-Control-Allow-Headers']  = "Origin, X-Requested-With, Content-Type, Entity-Length, Offset, TUS-Resumable"
+        cors_headers['Access-Control-Max-Age']        = "86400"
+      else
+        cors_headers['Access-Control-Expose-Headers'] = "Offset, Location, Entity-Length, TUS-Version, TUS-Resumable, TUS-Max-Size, TUS-Extension"
+      end
+
+      cors_headers
     end
   end
 end

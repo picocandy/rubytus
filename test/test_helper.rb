@@ -32,6 +32,17 @@ module Rubytus
     def assert_tus_max_size(headers, max_size = DEFAULT_MAX_SIZE)
       assert_equal max_size.to_s, headers['TUS_MAX_SIZE']
     end
+
+    def assert_tus_cors_option(headers, origin = '*')
+      assert_equal origin, headers['Access-Control-Allow-Origin']
+      assert_equal "POST, HEAD, PATCH, OPTIONS", headers['Access-Control-Allow-Methods']
+      assert_equal "Origin, X-Requested-With, Content-Type, Entity-Length, Offset, TUS-Resumable", headers['Access-Control-Allow-Headers']
+      assert_equal "86400", headers['Access-Control-Max-Age']
+    end
+
+    def assert_tus_cors_expose(headers, origin = '*')
+      assert_equal "Offset, Location, Entity-Length, TUS-Version, TUS-Resumable, TUS-Max-Size, TUS-Extension", headers['Access-Control-Expose-Headers']
+    end
   end
 
   module Mock

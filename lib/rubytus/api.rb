@@ -14,7 +14,11 @@ module Rubytus
 
     def on_headers(env, headers)
       env['api.options'] = @options
-      env['api.headers'] = COMMON_HEADERS.merge({ 'Date' => Time.now.httpdate })
+      env['api.headers'] = {
+        'TUS-Resumable' => '1.0.0',
+        'Date' => Time.now.httpdate
+      }
+
       prepare_headers(env, headers)
     end
 

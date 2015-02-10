@@ -57,6 +57,24 @@ class TestRubytusCommand < MiniTest::Test
     end
   end
 
+  def test_options_request_for_collection_cors
+    params = {
+      :path => '/uploads/',
+      :head => protocol_header.merge({ 'Origin' => '*' })
+    }
+
+    with_api(Rubytus::Command, default_options) do
+      options_request(params, @err) do |c|
+        assert_tus_protocol c.response_header
+        assert_tus_extensions c.response_header, SUPPORTED_EXTENSIONS
+        assert_tus_max_size c.response_header, (1024 * 1024)
+        assert_tus_cors_option c.response_header
+        assert_equal STATUS_OK, c.response_header.status
+        assert_equal '', c.response
+      end
+    end
+  end
+
   def test_get_request_for_collection
     params = {
       :path => '/uploads/',
@@ -127,6 +145,25 @@ class TestRubytusCommand < MiniTest::Test
     with_api(Rubytus::Command, default_options) do
       post_request(params, @err) do |c|
         assert_tus_protocol c.response_header
+        assert_equal STATUS_CREATED, c.response_header.status
+        assert c.response_header.location
+      end
+    end
+  end
+
+  def test_post_request_for_collection_with_cors
+    params = {
+      :path => '/uploads/',
+      :head => protocol_header.merge({
+        'Final-Length' => '10',
+        'Origin'       => '*'
+      })
+    }
+
+    with_api(Rubytus::Command, default_options) do
+      post_request(params, @err) do |c|
+        assert_tus_protocol c.response_header
+        assert_tus_cors_expose c.response_header
         assert_equal STATUS_CREATED, c.response_header.status
         assert c.response_header.location
       end
