@@ -193,7 +193,7 @@ class TestRubytusCommand < MiniTest::Test
     with_api(Rubytus::Command, default_options) do
       put_request(params, @err) do |c|
         assert_tus_protocol c.response_header
-        assert_equal 405, c.response_header.status
+        assert_equal STATUS_NOT_ALLOWED, c.response_header.status
         assert_equal 'HEAD,PATCH', c.response_header['ALLOW']
       end
     end
